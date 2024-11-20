@@ -1,7 +1,9 @@
 class Shop():
-    def __init__(self, symbol: str):
+    def __init__(self, symbol: str, item_symbol: str, item: str):
         self.purchases = 0
         self.symbol = symbol
+        self.item_symbol = item_symbol
+        self.item = item
         self.base_price = 5
         self.location = (9, 19)
     
@@ -16,3 +18,9 @@ class Shop():
 
     def get_type(self):
         return "Shop"
+    
+    def get_item_symbol(self):
+        return self.item_symbol
+    
+    def get_item(self):
+        return self.item

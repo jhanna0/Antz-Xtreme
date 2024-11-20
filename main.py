@@ -5,7 +5,7 @@ from typing import Dict
 
 # objects
 from board import Board
-from characters import Player
+from characters import Player, MinerRobot
 from source import Source
 from shop import Shop
 
@@ -46,7 +46,7 @@ class Game:
         # Register entities
         self.sources.register("@", Source("@"))
         self.machines.register("$", MoneyMachine("$"))
-        self.shops.register("!", Shop("!"))
+        self.shops.register("!", Shop("!", "*", "robot"))
 
     def update_board(self):
         all_objects = {
@@ -95,9 +95,16 @@ class Game:
                 self.player.calculate_interactions(
                     self.sources.sources,
                     self.machines.machines,
-                    self.shops.shops,
-                    self.npcs
                 )
+
+                success, shop_symbol, item = self.player.purchase_from_shop(self.shops.shops)
+                if success:
+                    if item == "robot":
+                        # Add logic to create and register a new NPC
+                        robot = MinerRobot("QT")
+                        robot.add_inventory_type("@")
+                        self.npcs.register(shop_symbol, robot)
+
                 # Handle NPC interactions separately
                 self.npcs.calculate_interactions(
                     self.sources.sources,

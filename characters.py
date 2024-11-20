@@ -151,8 +151,8 @@ class Player(Character):
             self.money -= amount
 
     # can probably make this better and merged with NPC interaction logic
-    # this is so bad how NPC manager is cyclicly referenced.. fix. probably outside of loop
-    def calculate_interactions(self, sources: Dict[str, Source], machines: Dict[str, Machine], shops: Dict[str, Shop], npcs: 'NPCManager'):
+    # this is so bad how NPC manager is cyclically referenced.. fix. probably outside of loop
+    def calculate_interactions(self, sources: Dict[str, Source], machines: Dict[str, Machine]):
         for symbol, source in sources.items():
             if self.get_location() == source.get_location():
                 item = source.take()
@@ -166,16 +166,19 @@ class Player(Character):
                     item = self.get_inventory().pop()
                     self.add_money(machine.convert(item))
                     return
-
+    
+    def purchase_from_shop(self, shops: Dict[str, Shop]) -> Tuple[bool, str, str]:
+        """
+        Attempt to purchase from a shop. Return a tuple indicating success,
+        the shop symbol, and the item type purchased.
+        """
         for symbol, shop in shops.items():
             if self.get_location() == shop.get_location():
                 price = shop.get_price()
 
-                # if the player has enough money for multiple bots, this will bug out and overwrite the first bot
                 if self.get_money() >= price:
                     if shop.purchase():
                         self.remove_money(price)
-                        robot = MinerRobot("QT")
-                        robot.add_inventory_type("@")
-                        npcs.register("*", robot)
-                        return
+                        return True, shop.get_item_symbol(), shop.get_item()
+        
+        return False, "", ""
