@@ -30,13 +30,9 @@ class Board():
         # is this logic working? only update display if changed
         return original_board != self.board
     
-    def check_validate_move(self, piece_location: Tuple, new_location: Tuple):
-        if not (0 <= new_location[0] < self.rows) or not (0 <= new_location[1] < self.cols):
+    def validate_move(self, move: Tuple[int, int]):
+        if not (0 <= move[0] < self.rows) or not (0 <= move[1] < self.cols):
             return False
-
-        diff_x = new_location[0] - piece_location[0]
-        diff_y = new_location[1] - piece_location[1]
-
-        # also check if another piece is under us
-        return abs(diff_x) + abs(diff_y) == 1
-
+        
+        # also check if there's a piece already under us
+        return True

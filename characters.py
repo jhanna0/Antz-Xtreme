@@ -28,9 +28,6 @@ class Character():
     def get_location(self):
         return self.location
 
-    def set_location(self, location: Tuple):
-        self.location = location
-
     def move(self):
         raise NotImplementedError(f"Move not implemented in {self.type} {self.name}")
     
@@ -133,11 +130,21 @@ class Player(Character):
     def __init__(self, name: str):
         super().__init__(Type.Player, name)
         self.money = 0
-
-    def move(self, direction: Direction) -> Tuple[int, int]:
+    
+    def next_move(self, direction: Direction) -> Tuple[int, int]:
         x = self.location[0] + direction.value[0]
         y = self.location[1] + direction.value[1]
         return (x, y)
+
+    def validate_move(self, move: Tuple[int, int]):
+        diff_x = move[0] - self.location[0]
+        diff_y = move[1] - self.location[1]
+
+        # we can only move one square at a time
+        return abs(diff_x) + abs(diff_y) == 1
+
+    def move(self, move: Tuple[int, int]):
+        self.location = move
 
     def get_money(self):
         return self.money

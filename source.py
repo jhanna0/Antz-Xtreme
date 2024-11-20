@@ -1,14 +1,23 @@
 import time
 from typing import Tuple
 from item import Item
+from enum import Enum
+
+# probably move into own rarity master class
+class Rarity(Enum):
+    COMMON = "Common"
+    UNCOMMON = "Uncommon"
+    RARE = "Rare"
+    LEGENDARY = "Legendary"
 
 class Source:
-    def __init__(self, symbol: str, location: Tuple[int, int], creation_rate: float, worth: int):
+    def __init__(self, symbol: str, location: Tuple[int, int], creation_rate: float, worth: int, rarity: Rarity):
         self.symbol = symbol
         self.capacity = 6
         self.quantity = 0
         self.creation_rate = creation_rate  # Time interval to create new items
         self.worth = worth  # Value of the source items
+        self.rarity = rarity
         self.location = location
         self.last_created_time = time.time()
         self.item = Item(symbol, worth)
