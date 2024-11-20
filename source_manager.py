@@ -1,7 +1,8 @@
 import random
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from source import Source
 from board import Board
+from broadcast import BroadCast
 
 class SourceManager:
     def __init__(self, board: Board, potential_sources: List[str]):
@@ -23,6 +24,8 @@ class SourceManager:
 
         new_source = Source(symbol, location, creation_rate, worth)
         self.sources[symbol] = new_source
+
+        BroadCast().announce(f"Source {symbol} has spawned!")
         self.board.update_piece_position(self.sources)
 
     def update(self, game_time: float):

@@ -5,6 +5,7 @@ from machine import Machine
 from shop import Shop
 from controller import Direction
 from inventory import Inventory
+from broadcast import BroadCast
 
 class Type(Enum):
     Player = "Player"
@@ -152,18 +153,19 @@ class Player(Character):
     # can probably make this better and merged with NPC interaction logic
     # this is so bad how NPC manager is cyclically referenced.. fix. probably outside of loop
     def calculate_interactions(self, sources: Dict[str, Source], machines: Dict[str, Machine]):
-        for symbol, source in sources.items():
+        for source in sources.values():
             if self.get_location() == source.get_location():
                 item = source.take()
                 if item:
                     self.add_to_inventory(item)
                     return
 
-        for symbol, machine in machines.items():
+        for machine in machines.values():
             if self.get_location() == machine.get_location():
                 if self.any_in_inventory():
                     item = self.get_inventory().pop()
                     self.add_money(machine.convert(item))
+                    BroadCast().announce(f"You sold {item.get_symbol()} for ${item.get_worth()}")
                     return
     
     def purchase_from_shop(self, shops: Dict[str, Shop]) -> Tuple[bool, str, str]:
@@ -171,7 +173,7 @@ class Player(Character):
         Attempt to purchase from a shop. Return a tuple indicating success,
         the shop symbol, and the item type purchased.
         """
-        for symbol, shop in shops.items():
+        for shop in shops.values():
             if self.get_location() == shop.get_location():
                 price = shop.get_price()
 

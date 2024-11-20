@@ -1,8 +1,6 @@
 # built in
 import time
 import threading
-import random
-from typing import Dict
 
 # objects
 from board import Board
@@ -24,14 +22,15 @@ from tick import TickManager
 
 class Game:
     def __init__(self):
+
+        # viewports and movement
         self.board = Board(10, 20)
         self.controller = Controller()
-        self.display = Display()
+        self.display = Display(self.board)
 
         # tick
-        self.tick_rate = 0.6
+        self.tick_rate = 0.4
         self.tick = TickManager(self.tick_rate)
-        self.game_time = time.time()
 
         # Managers
         self.npcs = NPCManager(self.board)
@@ -62,25 +61,22 @@ class Game:
         self._update_display()
     
     def _update_display(self):
-        self.display.update_display(self.board.get_board(), self.player)
+        self.display.update_display(self.player)
 
     def player_move(self, key):
-        """Handle player movement."""
         new_move = self.player.move(self.controller.move_list[key])
         if self.board.check_validate_move(self.player.get_location(), new_move):
             self.player.set_location(new_move)
             self.update_board()
     
     def trigger_event(self):
-        """Randomly trigger a gameplay event with logic for progression."""
-        # Ensure at least one event happens within the first 12 ticks
+        # Ensure at least one event happens within the first 100 ticks
         if self.tick.get_total_ticks() < 100 and self.events == 0:
             self.sources.register_random_source()
 
         self.events += 1
 
     def run(self):
-        """Run the game."""
         controller_thread = threading.Thread(target=self.controller.listen, daemon=True)
         controller_thread.start()
         self.tick.start()
@@ -89,7 +85,6 @@ class Game:
             # Handle player input (sub-tick)
             key = self.controller.get_last_input()
             if key == self.controller.get_exit_key():
-                print("Quit the game.")
                 self.controller.stop()
                 break
 
