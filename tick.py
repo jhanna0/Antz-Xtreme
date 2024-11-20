@@ -7,6 +7,7 @@ class TickManager:
         self.game_time = None
         self.last_full_tick_time = None
         self.last_sub_tick_time = None
+        self.total_ticks = 0
 
     def start(self):
         """Initialize timing."""
@@ -20,6 +21,7 @@ class TickManager:
         self.update_game_time()
         if self.game_time - self.last_full_tick_time >= self.tick_rate:
             self.last_full_tick_time = self.game_time
+            self.total_ticks += 1
             return True
         return False
 
@@ -38,3 +40,5 @@ class TickManager:
     def get_game_time(self):
         return self.game_time
 
+    def get_total_ticks(self):
+        return self.total_ticks

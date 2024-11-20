@@ -13,6 +13,9 @@ class Board():
     def get_board(self):
         return self.board
     
+    def get_board_size(self):
+        return (self.rows, self.cols)
+    
     def update_piece_position(self, pieces) -> bool:
         original_board = self.board.copy()
         self.clear_board()

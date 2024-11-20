@@ -1,12 +1,12 @@
 # built in
 import time
 import threading
+import random
 from typing import Dict
 
 # objects
 from board import Board
 from characters import Player, MinerRobot
-from source import Source
 from shop import Shop
 
 # managers
@@ -35,7 +35,7 @@ class Game:
 
         # Managers
         self.npcs = NPCManager(self.board)
-        self.sources = SourceManager(self.board)
+        self.sources = SourceManager(self.board, ["@", "#", "%"])
         self.machines = MachineManager(self.board)
         self.shops = ShopManager(self.board)
 
@@ -44,9 +44,11 @@ class Game:
         self.player = Player(name="Player 1")
 
         # Register entities
-        self.sources.register("@", Source("@"))
         self.machines.register("$", MoneyMachine("$"))
         self.shops.register("!", Shop("!", "*", "robot"))
+
+        # Events
+        self.events = 0
 
     def update_board(self):
         all_objects = {
@@ -60,7 +62,7 @@ class Game:
         self._update_display()
     
     def _update_display(self):
-        self.display.update_display(self.board.get_board(), self.player.get_money(), self.player.get_inventory())
+        self.display.update_display(self.board.get_board(), self.player)
 
     def player_move(self, key):
         """Handle player movement."""
@@ -68,6 +70,14 @@ class Game:
         if self.board.check_validate_move(self.player.get_location(), new_move):
             self.player.set_location(new_move)
             self.update_board()
+    
+    def trigger_event(self):
+        """Randomly trigger a gameplay event with logic for progression."""
+        # Ensure at least one event happens within the first 12 ticks
+        if self.tick.get_total_ticks() < 100 and self.events == 0:
+            self.sources.register_random_source()
+
+        self.events += 1
 
     def run(self):
         """Run the game."""
@@ -87,9 +97,8 @@ class Game:
                 self.player_move(key)
 
             if self.tick.is_full_tick():
-                
-                self.sources.update(self.tick.get_game_time())
 
+                self.sources.update(self.tick.get_game_time())
                 self.npcs.move_and_set_destinations(self.sources.sources, self.machines.machines)
 
                 self.player.calculate_interactions(
@@ -111,6 +120,8 @@ class Game:
                     self.machines.machines,
                     self.player
                 )
+
+                self.trigger_event()
                 self.update_board()
 
             time.sleep(0.01)

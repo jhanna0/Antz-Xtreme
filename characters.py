@@ -4,6 +4,7 @@ from source import Source
 from machine import Machine
 from shop import Shop
 from controller import Direction
+from inventory import Inventory
 
 class Type(Enum):
     Player = "Player"
@@ -21,8 +22,7 @@ class Character():
         self.type = self_type
         self.name = name
         self.location = location
-        self.inventory = []
-        self.capacity = 6
+        self.inventory: Inventory = Inventory()
 
     def get_location(self):
         return self.location
@@ -34,23 +34,22 @@ class Character():
         raise NotImplementedError(f"Move not implemented in {self.type} {self.name}")
     
     def add_to_inventory(self, item):
-        if len(self.inventory) < self.capacity:
-            self.inventory.append(item)
+        self.inventory.add_to_inventory(item)
 
     def get_inventory(self):
-        return self.inventory
+        return self.inventory.get_items()
 
     def get_capacity(self):
-        return self.capacity
+        return self.inventory.get_capacity()
 
     def get_type(self):
         return "Character"
     
     def inventory_full(self) -> bool:
-        return self.capacity == len(self.inventory)
+        return self.inventory.is_inventory_full()
 
     def any_in_inventory(self) -> bool:
-        return len(self.inventory) > 0
+        return self.inventory.is_there_anything_in_inventory()
 
 class NPC(Character):
     def __init__(self, type: Type, name: str, state: State = State.Idle):
