@@ -106,6 +106,7 @@ class Game:
                     self.machines.machines,
                 )
 
+                # ugliest bit of code in the whole program here. @K1 FIX!!!
                 success, shop_symbol, item = self.player.purchase_from_shop(self.shops.shops)
                 if success:
                     if item == "robot":
