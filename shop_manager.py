@@ -1,15 +1,8 @@
-from board import Board
-from shop import Shop
-from typing import Dict
+from manager import Manager
 
-class ShopManager:
-    def __init__(self, board: Board):
-        self.shops: Dict[str, Shop] = {}
-        self.board = board
-
-    def register(self, symbol: str, shop: Shop):
-        self.shops[symbol] = shop
-        self.board.update_piece_position(self.shops)
+class ShopManager(Manager):
+    def __init__(self):
+        super().__init__()
 
     # not used right now, probably is better to be here than in player logic tbh
     # def calculate_player_interaction(self, player: Player, npcs: NPCManager):

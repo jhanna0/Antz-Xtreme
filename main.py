@@ -34,18 +34,18 @@ class Game:
         self.tick = TickManager(tick_rate=0.4)
 
         # Managers
-        self.npcs = NPCManager(self.board)
+        self.npcs = NPCManager()
         self.sources = SourceManager(self.board, ["@", "#", "%", "T"])
-        self.machines = MachineManager(self.board)
-        self.shops = ShopManager(self.board)
+        self.machines = MachineManager()
+        self.shops = ShopManager()
 
         # Player
         self.player_icon = "~"
-        self.player = Player(name="Player 1")
+        self.player = Player(name="Player 1", symbol=self.player_icon)
 
         # Register entities
-        self.machines.register("$", MoneyMachine("$"))
-        self.shops.register("!", Shop("!", "*", "robot"))
+        self.machines.register(MoneyMachine("$"))
+        self.shops.register(Shop("!", "*", "robot"))
 
         # Events
         self.events = 0
@@ -58,14 +58,14 @@ class Game:
     def update_board(self):
         # if adding new type of pieces, add here
         all_objects = {
-            self.player_icon: self.player,
-            **self.npcs.npcs,
-            **self.sources.sources,
-            **self.machines.machines,
-            **self.shops.shops,
+            self.player_icon: [self.player],
+            **self.npcs.items,
+            **self.sources.items,
+            **self.machines.items,
+            **self.shops.items,
         }
-        self.board.update_piece_position(all_objects)
 
+        self.board.update_piece_position(all_objects)
         # display takes player but maybe we can avoid this
         self.display.update_display(self.player)
 
@@ -111,28 +111,26 @@ class Game:
             if self.tick.is_full_tick():
 
                 self.sources.update(self.tick.get_game_time())
-                self.npcs.move_and_set_destinations(self.sources.sources, self.machines.machines)
+                self.npcs.move_and_set_destinations(self.sources, self.machines)
 
                 self.player.calculate_interactions(
-                    self.sources.sources,
-                    self.machines.machines,
+                    self.sources,
+                    self.machines,
                 )
 
                 # ugliest bit of code in the whole program here. @K1 FIX!!!
-                success, shop_symbol, item = self.player.purchase_from_shop(self.shops.shops)
+                success, shop_symbol, item = self.player.purchase_from_shop(self.shops)
                 if success:
                     if item == "robot":
                         # Add logic to create and register a new NPC
-                        robot = MinerRobot("QT")
-                        robot.add_inventory_type("@")
-                        self.npcs.register(shop_symbol, robot)
-
-                        BroadCast().announce(f"A {robot.type.value}, {robot.name}, joins your team!")
+                        robot = MinerRobot(name="QT", location=(9, 18))
+                        self.npcs.register(robot)
+                        BroadCast().announce(f"A {robot.get_type()}, {robot.name}, joins your team!")
 
                 # Handle NPC interactions separately
                 self.npcs.calculate_interactions(
-                    self.sources.sources,
-                    self.machines.machines,
+                    self.sources,
+                    self.machines,
                     self.player
                 )
 

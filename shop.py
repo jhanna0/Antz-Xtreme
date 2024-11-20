@@ -22,5 +22,8 @@ class Shop():
     def get_item_symbol(self):
         return self.item_symbol
     
+    def get_symbol(self):
+        return self.symbol
+        
     def get_item(self):
         return self.item

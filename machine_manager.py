@@ -1,17 +1,8 @@
-from board import Board
-from machine import Machine
-from typing import Dict
-from characters import Player
-from broadcast import BroadCast
+from manager import Manager
 
-class MachineManager:
-    def __init__(self, board: Board):
-        self.machines: Dict[str, Machine] = {}
-        self.board = board
-
-    def register(self, symbol: str, machine: Machine):
-        self.machines[symbol] = machine
-        self.board.update_piece_position(self.machines)
+class MachineManager(Manager):
+    def __init__(self):
+        super().__init__()
 
     # not being used but I think it should
     # def calculate_player_interaction(self, player: Player):

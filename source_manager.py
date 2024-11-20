@@ -3,10 +3,11 @@ from typing import Dict, List
 from source import Source, Rarity
 from board import Board
 from broadcast import BroadCast
+from manager import Manager
 
-class SourceManager:
+class SourceManager(Manager):
     def __init__(self, board: Board, potential_sources: List[str]):
-        self.sources: List[Source] = []
+        super().__init__()
         self.board = board
         self.potential_sources = potential_sources
 
@@ -54,16 +55,13 @@ class SourceManager:
 
         # Create and register the source
         new_source = Source(symbol, location, creation_rate, worth, rarity)
-        self.register_source(new_source)
+        self.register(new_source)
     
-    def register_source(self, source: Source):
-        self.sources.append(source)
-
-        # Announce the spawn with rarity
+    def register(self, source: Source):
+        super().register(source)
         BroadCast().announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
-        self.board.update_piece_position(self.sources)
         
     def update(self, game_time: float):
         """Update all sources and attempt to create items."""
-        for source in self.sources.values():
+        for source in self.get_piece_array():
             source.try_to_create(game_time)

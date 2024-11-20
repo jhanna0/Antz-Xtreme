@@ -14,6 +14,9 @@ class Machine():
 
     def get_type(self):
         return "Machine"
+    
+    def get_symbol(self):
+        return self.symbol
 
 class MoneyMachine(Machine):
     def __init__(self, symbol: str):
