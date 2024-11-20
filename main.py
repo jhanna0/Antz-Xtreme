@@ -119,7 +119,7 @@ class Game:
                 )
 
                 # ugliest bit of code in the whole program here. @K1 FIX!!!
-                success, shop_symbol, item = self.player.purchase_from_shop(self.shops)
+                success, shop_symbol, item = self.player.purchase_from_shop(self.shops, self.tick.get_total_ticks())
                 if success:
                     if item == "robot":
                         # Add logic to create and register a new NPC

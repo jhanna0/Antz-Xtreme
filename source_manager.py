@@ -42,10 +42,11 @@ class SourceManager(Manager):
         self.board_size = self.board.get_board_size()
 
         # Generate random source properties
+        # -2 for the text offset
         symbol = random.choice(self.potential_sources)
         location = (
             random.randint(0, self.board_size[0] - 1),
-            random.randint(0, self.board_size[1] - 1)
+            random.randint(0, self.board_size[1] - 2)
         )
 
         # creation_rate should also be based on rarity

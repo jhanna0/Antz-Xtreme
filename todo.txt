@@ -5,3 +5,4 @@
 - need a map to have list of items we can generate
 - config file that creates relationship between worth/cost of sources, items, purchases so play is smoother
 - definitely move both NPC and player interactions to the manager files... not the character files I don't think
+- fix multiple purchases at shop

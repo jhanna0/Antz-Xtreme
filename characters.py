@@ -194,7 +194,7 @@ class Player(Character):
                     BroadCast().announce(f"You sold {item.get_symbol()} for ${item.get_worth()}")
                     return
     
-    def purchase_from_shop(self, shops: ShopManager) -> Tuple[bool, str, str]:
+    def purchase_from_shop(self, shops: ShopManager, ticks: int) -> Tuple[bool, str, str]:
         """
         Attempt to purchase from a shop. Return a tuple indicating success,
         the shop symbol, and the item type purchased.
@@ -204,7 +204,7 @@ class Player(Character):
                 price = shop.get_price()
 
                 if self.get_money() >= price:
-                    if shop.purchase():
+                    if shop.purchase(ticks):
                         self.remove_money(price)
                         return True, shop.get_item_symbol(), shop.get_item()
         

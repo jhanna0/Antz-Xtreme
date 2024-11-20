@@ -6,6 +6,8 @@ class Shop():
         self.item = item
         self.base_price = 5
         self.location = (9, 19)
+        self.last_purchase_tick = 0
+        self.cooldown = 20
     
     def get_price(self):
         return int(((self.purchases + 1) + self.base_price) ** 1.5)
@@ -13,8 +15,12 @@ class Shop():
     def get_location(self):
         return self.location
 
-    def purchase(self):
-        return True
+    def purchase(self, tick: int):
+        if (tick - self.last_purchase_tick) > self.cooldown:
+            self.last_purchase_tick = tick
+            return True
+        
+        return False
 
     def get_type(self):
         return "Shop"
