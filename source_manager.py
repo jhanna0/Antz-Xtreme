@@ -6,7 +6,7 @@ from broadcast import BroadCast
 
 class SourceManager:
     def __init__(self, board: Board, potential_sources: List[str]):
-        self.sources: Dict[str, Source] = {}
+        self.sources: List[Source] = []
         self.board = board
         self.potential_sources = potential_sources
 
@@ -36,7 +36,7 @@ class SourceManager:
         min_worth, max_worth = rarity_worth_map[rarity]
         return random.randint(min_worth, max_worth)
 
-    def register_random_source(self):
+    def create_random_source(self):
         """Register a new source with random properties and rarity."""
         self.board_size = self.board.get_board_size()
 
@@ -54,12 +54,15 @@ class SourceManager:
 
         # Create and register the source
         new_source = Source(symbol, location, creation_rate, worth, rarity)
-        self.sources[symbol] = new_source
+        self.register_source(new_source)
+    
+    def register_source(self, source: Source):
+        self.sources.append(source)
 
         # Announce the spawn with rarity
-        BroadCast().announce(f"{rarity.value} Resource {symbol} has spawned!")
+        BroadCast().announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
         self.board.update_piece_position(self.sources)
-
+        
     def update(self, game_time: float):
         """Update all sources and attempt to create items."""
         for source in self.sources.values():

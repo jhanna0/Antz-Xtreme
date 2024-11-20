@@ -1,6 +1,7 @@
 # built in
 import time
 import threading
+import random
 
 # objects
 from board import Board
@@ -30,12 +31,11 @@ class Game:
         self.display = Display(self.board)
 
         # Tick
-        self.tick_rate = 0.4
-        self.tick = TickManager(self.tick_rate)
+        self.tick = TickManager(tick_rate=0.4)
 
         # Managers
         self.npcs = NPCManager(self.board)
-        self.sources = SourceManager(self.board, ["@", "#", "%"])
+        self.sources = SourceManager(self.board, ["@", "#", "%", "T"])
         self.machines = MachineManager(self.board)
         self.shops = ShopManager(self.board)
 
@@ -49,12 +49,14 @@ class Game:
 
         # Events
         self.events = 0
+        self.last_event_time = 0
 
         BroadCast().announce(f"You are '{self.player_icon}'.")
         BroadCast().announce(f"Mine resources. Sell resources at '$'.")
         BroadCast().announce(f"Purchase upgrades at '!'.")
 
     def update_board(self):
+        # if adding new type of pieces, add here
         all_objects = {
             self.player_icon: self.player,
             **self.npcs.npcs,
@@ -63,9 +65,8 @@ class Game:
             **self.shops.shops,
         }
         self.board.update_piece_position(all_objects)
-        self._update_display()
-    
-    def _update_display(self):
+
+        # display takes player but maybe we can avoid this
         self.display.update_display(self.player)
 
     def player_move(self, key):
@@ -76,9 +77,20 @@ class Game:
             self.update_board()
     
     def trigger_event(self):
-        # Ensure at least one event happens within the first 100 ticks
-        if self.tick.get_total_ticks() > 20 and self.events == 0:
-            self.sources.register_random_source()
+        total_ticks = self.tick.get_total_ticks()
+
+        # first event happens early
+        if total_ticks > 20 and self.events == 0:
+            self.sources.create_random_source()
+            self.events += 1
+            self.last_event_time = total_ticks
+            return
+
+        # Trigger an event every ~200 ticks
+        elif (total_ticks - self.last_event_time) >= random.randint(180, 300):
+            BroadCast().announce(f"{total_ticks} {self.last_event_time}")
+            self.sources.create_random_source()
+            self.last_event_time = total_ticks
             self.events += 1
 
     def run(self):
