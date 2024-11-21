@@ -1,7 +1,3 @@
-# Built in
-import time
-import threading
-import random
 
 # Objects
 from Game.board import Board
@@ -49,7 +45,7 @@ class Game:
 
         Tutorial(self.player_icon).start()
 
-    def update_board(self):
+    def _update_board(self):
         # if adding new type of pieces, add here
         # can make a registration method too
         all_objects = {
@@ -61,8 +57,7 @@ class Game:
         }
 
         self.board.update_piece_position(all_objects)
-        # display takes player's inventory. can we avoid?
-        self.display.update_display(self.player.inventory)
+        self.display.update_display(self.player.inventory) # can we avoid passing player's inventory?
 
     def player_move(self, key):
         next_move = self.player.next_move(self.controller.move_list[key])
@@ -86,38 +81,32 @@ class Game:
                 self.npcs.register(purchase)
                 self.player_move("a") #janky but let's kick player out of shop after purchase
     
-    def handle_controls(self) -> bool:
-        # Handle player input (sub-tick)
-        key = self.controller.get_last_input()
-        if key == self.controller.get_exit_key():
-            self.controller.stop()
-            return False
-
-        if key and key in self.controller.move_list and ticks.is_sub_tick():
+    def _sub_tick_sequence(self):
+        key = self.controller.process_latest_input()
+        if key:
             self.player_move(key)
-        
-        return True
+        self._update_board()
+
+    def _full_tick_sequence(self):
+        self.sources.update()
+        self.player_turn_sequence()
+        self.npcs.turn_sequence(self.sources, self.machines)
+        self.events.trigger_event(self.board.get_size())
+        self._update_board()
 
     def run(self):
         # I think player movement runs outside of tick system
-        controller_thread = threading.Thread(target = self.controller.listen, daemon = True)
-        controller_thread.start()
+        self.controller.start()
         ticks.start()
 
         while self.controller.running:
-            if not self.handle_controls():
-                break
+            if ticks.is_sub_tick():
+                self._sub_tick_sequence()
 
             if ticks.is_full_tick():
-                self.sources.update(ticks.get_game_time())
+                self._full_tick_sequence()
 
-                self.player_turn_sequence()
-                self.npcs.turn_sequence(self.sources, self.machines)
-
-                self.events.trigger_event(self.board.get_size())
-
-            self.update_board()
-            time.sleep(0.01)
+            ticks.wait_until_next_tick()
 
 
 game = Game()

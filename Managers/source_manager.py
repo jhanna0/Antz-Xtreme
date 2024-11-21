@@ -7,7 +7,6 @@ from Managers.manager import Manager
 from Game.definitions import Rarity
 from Game.definitions import source_rarity_worth_map, source_rarity_weights
 
-
 class SourceManager(Manager[Source]):
     def __init__(self, potential_sources: List[str]):
         super().__init__()
@@ -30,10 +29,10 @@ class SourceManager(Manager[Source]):
     
     def get_best_source(self) -> Optional[Source]:
         return max(self.get_pieces_list(), key = lambda source: source.get_quantity(), default = None)
-        
-    def update(self, game_time: float):
+
+    def update(self):
         for source in self.get_pieces_list():
-            source.try_to_create(game_time)
+            source.grow()
 
     def _get_random_rarity(self) -> Rarity:
         return choices(population=list(source_rarity_weights.keys()), weights=list(source_rarity_weights.values()), k=1)[0]

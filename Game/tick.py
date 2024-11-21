@@ -1,78 +1,61 @@
 import time
-from typing import Optional
 
 
 class TickManager:
-    _instance: Optional["TickManager"] = None
+    _instance = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, tick_rate: float = 0.4, sub_tick_ratio: int = 3):
+    def __init__(self, tick_rate: float = 0.4, sub_tick_ratio: int = 2):
         if not hasattr(self, "_initialized"):  # Prevent reinitialization
             self._initialized = True
-            self.tick_rate = tick_rate  # Full tick interval
-            self.sub_tick_rate = tick_rate / sub_tick_ratio  # Sub-tick interval
+
+            self.current_tick = 0
+            self.tick_rate = tick_rate
+            self.sub_tick_rate = tick_rate / sub_tick_ratio # subtick action get (sub_tick_ratio) actions per turn (2)
+
             self.game_time = None
-            self.last_full_tick_time = None
             self.last_sub_tick_time = None
-            self.total_ticks = 0
-            self.total_sub_ticks = 0
+            self.last_tick_time = None
 
     def start(self):
         """Initialize timing."""
         time_now = time.time()
         self.game_time = time_now
-        self.last_full_tick_time = time_now
+        self.last_tick_time = time_now
         self.last_sub_tick_time = time_now
 
-    def is_full_tick(self) -> bool:
-        """Check if a full tick has elapsed and update state if true."""
-        self.update_game_time()
-        if self.game_time - self.last_full_tick_time >= self.tick_rate:
-            self.last_full_tick_time = self.game_time
-            self.total_ticks += 1
-            return True
-        return False
+    def get_current_tick(self) -> int:
+        return self.current_tick
 
     def is_sub_tick(self) -> bool:
-        """Check if a sub-tick has elapsed and update state if true."""
-        self.update_game_time()
-        if self.game_time - self.last_sub_tick_time >= self.sub_tick_rate:
+        if self._time_since_last_sub_tick() >= self.sub_tick_rate:
             self.last_sub_tick_time = self.game_time
-            self.total_sub_ticks += 1
             return True
         return False
 
-    def update_game_time(self):
-        """Update the current game time."""
-        self.game_time = time.time()
+    def is_full_tick(self) -> bool:
+        if self._time_since_last_tick() >= self.tick_rate:
+            self.last_tick_time = self.game_time
+            self.current_tick += 1
+            return True
+        return False
 
-    def get_game_time(self) -> float:
-        """Get the current game time."""
-        return self.game_time
+    def wait_until_next_tick(self) -> None:
+            time.sleep(0.01)
 
-    def get_total_ticks(self) -> int:
-        """Get the total number of full ticks."""
-        return self.total_ticks
-
-    def get_total_sub_ticks(self) -> int:
-        """Get the total number of sub-ticks."""
-        return self.total_sub_ticks
-
-    def time_since_last_tick(self) -> float:
-        """Get the elapsed time since the last full tick."""
-        return self.game_time - self.last_full_tick_time
-
-    def time_since_last_sub_tick(self) -> float:
-        """Get the elapsed time since the last sub-tick."""
+    def _time_since_last_sub_tick(self) -> float:
+        self._update_game_time()
         return self.game_time - self.last_sub_tick_time
 
-    def wait_until_next_tick(self):
-        """Block execution until the next full tick."""
-        while not self.is_full_tick():
-            time.sleep(0.001)  # Sleep for a short duration to reduce CPU usage
+    def _time_since_last_tick(self) -> float:
+        self._update_game_time()
+        return self.game_time - self.last_tick_time
+
+    def _update_game_time(self) -> None:
+        self.game_time = time.time()
 
 ticks = TickManager()

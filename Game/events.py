@@ -3,7 +3,7 @@ from random import randint
 
 from Game.tick import ticks
 from Managers.source_manager import SourceManager
-
+from Game.broadcast import broadcast
 
 class Events():
     def __init__(self, sources: SourceManager):
@@ -13,14 +13,14 @@ class Events():
         self.sources = sources
 
     def trigger_event(self, board_size: Tuple[int, int]):
-        total_ticks = ticks.get_total_ticks()
+        current_tick = ticks.get_current_tick()
 
-        if total_ticks > 20 and self.events == 0: # first event happens early
+        if current_tick > 20 and self.events == 0: # first event happens early
             self.sources.create_random_source(board_size)
             self.events += 1
-            self.last_event_time = total_ticks
+            self.last_event_time = current_tick
 
-        elif (total_ticks - self.last_event_time) >= randint(180, 300): # Trigger an event every ~240 ticks
+        elif (current_tick - self.last_event_time) >= randint(180, 300): # Trigger an event every ~240 ticks
             self.sources.create_random_source(board_size)
-            self.last_event_time = total_ticks
+            self.last_event_time = current_tick
             self.events += 1

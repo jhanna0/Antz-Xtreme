@@ -1,7 +1,7 @@
-from typing import Optional
+
 
 class Bank:
-    _instance: Optional["Bank"] = None
+    _instance = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -38,4 +38,5 @@ class Bank:
             return f"${balance / 1_000_000_000:.1f}B"
 
 # all players share the same bank.. good?
+# probably not, because now multipler requires passing different bank logic to NPCs
 bank = Bank()

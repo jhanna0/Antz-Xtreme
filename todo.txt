@@ -4,3 +4,4 @@
 - need a map to have list of items we can generate
 - config file that creates relationship between worth/cost of sources, items, purchases so play is smoother
 - globally implement speed which effects tick rate etc
+- possible winning - build up to final item goal full inv? like 2048 but full inv. combined craft

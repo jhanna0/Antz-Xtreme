@@ -24,7 +24,7 @@ class Shop(Piece):
     
     # don't know if this is best way
     def purchase(self) -> Optional[Piece]:
-        tick = self.ticks.get_total_ticks()
+        tick = self.ticks.get_current_tick()
         if (tick - self.last_purchase_tick) > self.cooldown:
             self.last_purchase_tick = tick
             self.purchases += 1
