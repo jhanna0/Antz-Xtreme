@@ -1,16 +1,12 @@
 from character import Character
 from Game.definitions import NpcState
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import SourceManager
-from typing import Tuple, Set
-
+from typing import Tuple
 
 class NPC(Character):
-    def __init__(self, name: str, symbol: str = "*", location: Tuple[int, int] = (9, 18)):
+    def __init__(self, name: str, symbol: str, location: Tuple[int, int]):
         super().__init__(name, symbol, location)
         self.destination: Tuple[int, int] = (0, 0)
         self.state: NpcState = NpcState.Idle
-        self.inventory_types: Set[str] = set()
 
     def move(self) -> None:
         # move NPC one step
@@ -33,14 +29,6 @@ class NPC(Character):
 
     def set_destination(self, destination: Tuple[int, int]) -> None:
         self.destination = destination
-
-    # eventually will be used to target specific sources
-    def add_inventory_type(self, item_type: str) -> None:
-        self.inventory_types.add(item_type)
-
-    # can maybe be Piece/Source instead of str
-    def get_inventory_types(self) -> Set[str]:
-        return self.inventory_types
 
     def at_destination(self) -> bool:
         return self.destination == self.location

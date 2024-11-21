@@ -7,11 +7,8 @@ class Machine(Piece):
         self.location = (4, 0)
         self.efficiency = 1  # Multiplier for conversion rates
 
-    def convert(self, item):
+    def convert(self, item: Item):
         raise NotImplementedError(f"Convert not implemented")
-
-    def get_type(self):
-        return "Machine"
     
     def get_symbol(self):
         return self.symbol
