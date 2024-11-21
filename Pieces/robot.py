@@ -27,6 +27,7 @@ class MinerRobot(NPC):
             if not self.inventory_full():
                 # Find and move to the best source
                 # multiple NPCs will now go after this source! -> another reason to move logic to NPC manager
+                # get best source only calculates quantity, not what the npc needs. need to figure out best source here i think
                 source = sources.get_best_source()
                 if source:
                     self.set_destination(source.get_location())
@@ -34,14 +35,17 @@ class MinerRobot(NPC):
 
             elif self.inventory_full():
                 # Move to the nearest machine to sell inventory
-                machine = machines.get_nearest_piece()
+                machine = machines.get_nearest_piece(self.get_location())
                 if machine:
-                    # why isn't this type checking get_location?
                     self.set_destination(machine.get_location())
                     self.transition_state(NpcState.Sell)
 
         elif self.state == NpcState.Collect:
-            if self.at_destination() and not self.inventory_full():
+            if self.inventory_full():
+                # could just switch to collect but switching to Idle seems safer for now
+                self.transition_state(NpcState.Idle)
+
+            elif self.at_destination() and not self.inventory_full():
                 # Perform collection at destination
                 self.transition_state(NpcState.Idle)
 

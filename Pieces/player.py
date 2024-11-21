@@ -35,7 +35,7 @@ class Player(Character):
             # added a cooldown to purchasing to avoid duplicate purchases
             purchase = shop.purchase()
             if purchase:
-                bank.remove_money(price)        
+                bank.remove_money(price)
         else:
             broadcast.announce(f"Not enough money! Price: ${price}")
         

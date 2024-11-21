@@ -6,7 +6,7 @@ class Bank:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.balance = 100
+            cls._instance.balance = 0
         return cls._instance
 
     def get_money(self) -> int:

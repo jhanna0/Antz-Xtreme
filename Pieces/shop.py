@@ -5,7 +5,7 @@ from Game.broadcast import broadcast
 
 # at the moment shop will only sell Pieces, but, we should also have Item Shop
 class Shop(Piece):
-    def __init__(self, piece_type: Type[Piece], location: Tuple[int, int] = (0, 1), symbol: str = "!"):
+    def __init__(self, piece_type: Type[Piece], location: Tuple[int, int] = (9, 19), symbol: str = "!"):
         super().__init__(location, symbol)
         self.purchases = 0
         self.base_price = 5

@@ -91,6 +91,7 @@ class Game:
             purchase = self.player.purchase_from_shop(shop)
             if purchase:
                 self.npcs.register(purchase)
+                self.player_move("a") #janky but let's kick player out of shop after purchase
         
     # move to event class later
     def trigger_event(self):
