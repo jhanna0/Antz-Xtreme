@@ -34,7 +34,6 @@ class TickManager:
         return False
 
     def update_game_time(self):
-        """Update the current game time."""
         self.game_time = time.time()
 
     def get_game_time(self):

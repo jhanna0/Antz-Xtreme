@@ -1,12 +1,7 @@
-from board import Board
 from characters import NPC, Player
-from source import Source
-from machine import Machine
-from typing import Dict
 from manager import Manager
 from source_manager import SourceManager
 from machine_manager import MachineManager
-from broadcast import BroadCast
 
 class NPCManager(Manager):
     def __init__(self):

@@ -88,7 +88,6 @@ class Game:
 
         # Trigger an event every ~200 ticks
         elif (total_ticks - self.last_event_time) >= random.randint(180, 300):
-            BroadCast().announce(f"{total_ticks} {self.last_event_time}")
             self.sources.create_random_source()
             self.last_event_time = total_ticks
             self.events += 1
