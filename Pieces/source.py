@@ -1,5 +1,5 @@
-import time
 from typing import Tuple
+
 from Inventory.item import Item
 from Pieces.piece import Piece
 from Game.definitions import Rarity

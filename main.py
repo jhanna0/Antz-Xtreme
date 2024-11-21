@@ -95,15 +95,17 @@ class Game:
         self._update_board()
 
     def run(self):
-        # I think player movement runs outside of tick system
         self.controller.start()
-        ticks.start()
 
+        # this is kind of turn based kind of tick based- probably can be improved
+        # does it make sense to just sleep at tick_rate?
+        # I do like this because it blocks action
         while self.controller.running:
-            if ticks.is_sub_tick():
+            sub_tick, tick = ticks.tick()
+            if sub_tick:
                 self._sub_tick_sequence()
 
-            if ticks.is_full_tick():
+            if tick:
                 self._full_tick_sequence()
 
             ticks.wait_until_next_tick()
