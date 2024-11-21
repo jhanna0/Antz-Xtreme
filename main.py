@@ -5,10 +5,10 @@ import random
 
 # Objects
 from Game.board import Board
+from Game.events import Events
 from Pieces.player import Player
 from Pieces.robot import MinerRobot
 from Pieces.shop import Shop
-from Game.bank import bank
 
 # Managers
 from Managers.machine_manager import MachineManager
@@ -31,15 +31,13 @@ class Game:
         self.controller = Controller()
         self.display = Display(self.board)
 
-        # Tick
-        self.ticks = ticks
-
         # Managers
         self.npcs = NPCManager()
         self.sources = SourceManager(["@", "#", "%", "T"])
         self.machines = MachineManager()
         self.shops = ShopManager()
-
+        self.events = Events(self.sources)
+        
         # Player
         self.player_icon = "~"
         self.player = Player(symbol = self.player_icon)
@@ -48,10 +46,7 @@ class Game:
         self.machines.register(MoneyMachine("$"))
         self.shops.register(Shop(piece_type = MinerRobot))
 
-        # Events
-        self.events = 0
-        self.last_event_time = 0
-
+        # Starting Message
         broadcast.announce(f"You are '{self.player_icon}'.")
         broadcast.announce(f"Mine resources. Sell resources at '$'.")
         broadcast.announce(f"Purchase upgrades at '!'.")
@@ -68,7 +63,7 @@ class Game:
         }
 
         self.board.update_piece_position(all_objects)
-        # display takes player but maybe we can avoid this
+        # display takes player's inventory. can we avoid?
         self.display.update_display(self.player.inventory)
 
     def player_move(self, key):
@@ -92,45 +87,36 @@ class Game:
             if purchase:
                 self.npcs.register(purchase)
                 self.player_move("a") #janky but let's kick player out of shop after purchase
+    
+    def handle_controls(self) -> bool:
+        # Handle player input (sub-tick)
+        key = self.controller.get_last_input()
+        if key == self.controller.get_exit_key():
+            self.controller.stop()
+            return False
+
+        if key and key in self.controller.move_list and ticks.is_sub_tick():
+            self.player_move(key)
         
-    # move to event class later
-    def trigger_event(self):
-        total_ticks = self.ticks.get_total_ticks()
-
-        if total_ticks > 20 and self.events == 0: # first event happens early
-            self.sources.create_random_source(self.board.get_size())
-            self.events += 1
-            self.last_event_time = total_ticks
-
-        elif (total_ticks - self.last_event_time) >= random.randint(180, 300): # Trigger an event every ~240 ticks
-            self.sources.create_random_source(self.board.get_size())
-            self.last_event_time = total_ticks
-            self.events += 1
+        return True
 
     def run(self):
-        # what would happen if we didn't run in a thread?
+        # I think player movement runs outside of tick system
         controller_thread = threading.Thread(target = self.controller.listen, daemon = True)
         controller_thread.start()
-        self.ticks.start()
+        ticks.start()
 
         while self.controller.running:
-            # Handle player input (sub-tick)
-            key = self.controller.get_last_input()
-            if key == self.controller.get_exit_key():
-                self.controller.stop()
+            if not self.handle_controls():
                 break
 
-            if key and key in self.controller.move_list and self.ticks.is_sub_tick():
-                self.player_move(key)
-
-            if self.ticks.is_full_tick():
-
-                self.sources.update(self.ticks.get_game_time())
+            if ticks.is_full_tick():
+                self.sources.update(ticks.get_game_time())
 
                 self.player_turn_sequence()
                 self.npcs.turn_sequence(self.sources, self.machines)
 
-                self.trigger_event()
+                self.events.trigger_event(self.board.get_size())
                 self.update_board()
 
             time.sleep(0.01)

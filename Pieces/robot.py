@@ -24,6 +24,7 @@ class MinerRobot(NPC):
     # two sides to the coin: 1 NPC manager should tell NPC what to do, but also, NPC can decide what to do on its own!
     def decide_next_action(self, sources: SourceManager, machines: MachineManager):
         if self.state == NpcState.Idle:
+            # we need to check if NPC is at destination !!
             if not self.inventory_full():
                 # Find and move to the best source
                 # multiple NPCs will now go after this source! -> another reason to move logic to NPC manager
@@ -45,9 +46,10 @@ class MinerRobot(NPC):
                 # could just switch to collect but switching to Idle seems safer for now
                 self.transition_state(NpcState.Idle)
 
-            elif self.at_destination() and not self.inventory_full():
-                # Perform collection at destination
-                self.transition_state(NpcState.Idle)
+            # this is causing NPCs to leave immediately
+            # elif self.at_destination() and not self.inventory_full():
+            #     # Perform collection at destination
+            #     self.transition_state(NpcState.Idle)
 
         elif self.state == NpcState.Sell:
             if self.at_destination() and not self.any_in_inventory():
