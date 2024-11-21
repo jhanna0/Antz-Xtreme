@@ -1,14 +1,7 @@
 import time
 from typing import Tuple
-from item import Item
+from Inventory.item import Item
 from enum import Enum
-
-# probably move into own rarity master class
-class Rarity(Enum):
-    COMMON = "Common"
-    UNCOMMON = "Uncommon"
-    RARE = "Rare"
-    LEGENDARY = "Legendary"
 
 class Source:
     def __init__(self, symbol: str, location: Tuple[int, int], creation_rate: float, worth: int, rarity: Rarity):

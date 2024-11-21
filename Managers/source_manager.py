@@ -1,9 +1,9 @@
 import random
 from typing import Dict, List
-from source import Source, Rarity
-from board import Board
-from broadcast import BroadCast
-from manager import Manager
+from Pieces.source import Source, Rarity
+from Game.board import Board
+from Game.broadcast import BroadCast
+from Managers.manager import Manager
 
 class SourceManager(Manager):
     def __init__(self, board: Board, potential_sources: List[str]):

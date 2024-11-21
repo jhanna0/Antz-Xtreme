@@ -1,7 +1,7 @@
-from characters import Player
-from board import Board
+from Pieces.character import Player
+from Game.board import Board
 from typing import List
-from broadcast import BroadCast
+from Game.broadcast import BroadCast
 
 class Display:
     def __init__(self, board: Board):

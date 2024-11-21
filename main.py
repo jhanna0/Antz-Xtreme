@@ -4,22 +4,22 @@ import threading
 import random
 
 # objects
-from board import Board
-from characters import Player, MinerRobot
-from shop import Shop
+from Game.board import Board
+from Pieces.character import Player, MinerRobot
+from Pieces.shop import Shop
 
 # managers
-from machine_manager import MachineManager
-from npc_manager import NPCManager
-from shop_manager import ShopManager
-from machine import MoneyMachine
-from source_manager import SourceManager
+from Managers.machine_manager import MachineManager
+from Managers.npc_manager import NPCManager
+from Managers.shop_manager import ShopManager
+from Pieces.machine import MoneyMachine
+from Managers.source_manager import SourceManager
 
 # control and view
-from display import Display
-from broadcast import BroadCast
-from controller import Controller
-from tick import TickManager
+from Game.display import Display
+from Game.broadcast import BroadCast
+from Game.controller import Controller
+from Game.tick import TickManager
 
 
 class Game:

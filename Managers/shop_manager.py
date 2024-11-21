@@ -1,4 +1,4 @@
-from manager import Manager
+from Managers.manager import Manager
 
 class ShopManager(Manager):
     def __init__(self):

@@ -1,4 +1,4 @@
-from manager import Manager
+from Managers.manager import Manager
 
 class MachineManager(Manager):
     def __init__(self):

@@ -1,4 +1,4 @@
-from item import Item
+from Inventory.item import Item
 from typing import List
 
 class Inventory():

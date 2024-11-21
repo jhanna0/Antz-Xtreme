@@ -1,6 +1,7 @@
-from item import Item
+from Inventory.item import Item
+from piece import Piece
 
-class Machine():
+class Machine(Piece):
     def __init__(self, symbol: str):
         self.symbol = symbol
         self.location = (4, 0)
@@ -8,9 +9,6 @@ class Machine():
 
     def convert(self, item):
         raise NotImplementedError(f"Convert not implemented")
-
-    def get_location(self):
-        return self.location
 
     def get_type(self):
         return "Machine"
