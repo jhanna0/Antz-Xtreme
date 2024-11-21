@@ -37,7 +37,7 @@ class Game:
         self.machines = MachineManager()
         self.shops = ShopManager()
         self.events = Events(self.sources)
-        
+
         # Player
         self.player_icon = "~"
         self.player = Player(symbol = self.player_icon)
@@ -70,8 +70,8 @@ class Game:
         next_move = self.player.next_move(self.controller.move_list[key])
         if self.board.validate_move(next_move) and self.player.validate_move(next_move):
             self.player.move(next_move)
-            self.update_board()
     
+    # probably can make a player manager class but do we reallllly need to just to pass every object ever??
     def player_turn_sequence(self):
         source = self.sources.get_piece_at_location(self.player.get_location())
         if source:
@@ -117,8 +117,8 @@ class Game:
                 self.npcs.turn_sequence(self.sources, self.machines)
 
                 self.events.trigger_event(self.board.get_size())
-                self.update_board()
 
+            self.update_board()
             time.sleep(0.01)
 
 
