@@ -1,7 +1,8 @@
-from Pieces.character import Player
+from Game.bank import Bank
 from Game.board import Board
 from typing import List
 from Game.broadcast import BroadCast
+from Inventory.inventory import Inventory
 
 class Display:
     def __init__(self, board: Board):
@@ -36,7 +37,7 @@ class Display:
         """Clear the terminal screen and reset the cursor."""
         print("\033[H\033[J", end="")  # Move cursor to the top-left and clear the screen
 
-    def update_display(self, player: Player):
+    def update_display(self, bank: Bank, inventory: Inventory):
         """Render the entire display, including the board, player info, and messages."""
         self.clear_screen()
         self._get_latest_board_size()
@@ -47,7 +48,7 @@ class Display:
             print(' '.join(row))
         
         print(f"\033[{self.board_rows + 1};1H", end="")  # Move to the row below the board
-        print(f"${player.get_money()}             [{' '.join(player.inventory.get_items_symbols())}]")
+        print(f"${bank.get_money()}             [{' '.join(inventory.get_items_symbols())}]")
         
         # Render additional messages
         self.update_messages()

@@ -2,10 +2,11 @@ from typing import Tuple
 
 from character import Character
 from Game.definitions import NpcState
+from Game.bank import Bank
 
 class NPC(Character):
-    def __init__(self, name: str, symbol: str, location: Tuple[int, int]):
-        super().__init__(name, symbol, location)
+    def __init__(self, name: str, symbol: str, location: Tuple[int, int], bank: Bank):
+        super().__init__(name, symbol, location, bank)
         self.destination: Tuple[int, int] = (0, 0)
         self.state: NpcState = NpcState.Idle
 

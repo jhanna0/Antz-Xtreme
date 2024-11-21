@@ -4,12 +4,12 @@ from Pieces.npc import NPC
 from Game.definitions import NpcState
 from Managers.source_manager import SourceManager
 from Managers.machine_manager import MachineManager
-
+from Game.bank import Bank
 
 # pass location in future from NPCManager
 class MinerRobot(NPC):
-    def __init__(self, name: str, symbol: str = "*", location: Tuple[int, int] = (9, 18)):
-        super().__init__(name, symbol, location)
+    def __init__(self, name: str, bank: Bank, symbol: str = "*", location: Tuple[int, int] = (9, 18)):
+        super().__init__(name, symbol, location, bank)
         self.inventory_types: Set[str] = set()
         self.add_inventory_type("@")
 
