@@ -1,35 +1,34 @@
-class Shop():
-    def __init__(self, symbol: str, item_symbol: str, item: str):
+from Pieces.piece import Piece
+from typing import Tuple, Type
+
+# at the moment shop will only sell Pieces, but, we should also have Item Shop
+class Shop(Piece):
+    def __init__(self, piece_type: Type[Piece], location: Tuple[int, int] = (9, 19), symbol: str = "!"):
+        super().__init__(location, symbol)
         self.purchases = 0
-        self.symbol = symbol
-        self.item_symbol = item_symbol
-        self.item = item
         self.base_price = 5
-        self.location = (9, 19)
+
+        # Store the class type (blueprint) of the item we're selling
+        self.item_type: Type[Piece] = piece_type
+
         self.last_purchase_tick = 0
         self.cooldown = 20
-    
-    def get_price(self):
+
+    def get_price(self) -> int:
         return int(((self.purchases + 1) + self.base_price) ** 1.5)
     
-    def get_location(self):
-        return self.location
-
-    def purchase(self, tick: int):
+    # mmhhh don't know if this is best way
+    def purchase(self, tick: int) -> Piece | None:
+        """Handles the purchase and returns a new instance of the item."""
         if (tick - self.last_purchase_tick) > self.cooldown:
             self.last_purchase_tick = tick
-            return True
-        
-        return False
+            self.purchases += 1
 
-    def get_type(self):
-        return "Shop"
-    
-    def get_item_symbol(self):
-        return self.item_symbol
-    
-    def get_symbol(self):
-        return self.symbol
+            return self.item_type(f"Bot-{self.purchases}")
         
-    def get_item(self):
-        return self.item
+        return None
+    
+    # def give_tick(self, tick: int):
+        
+    def get_item_type(self) -> Type[Piece]:
+        return self.item_type

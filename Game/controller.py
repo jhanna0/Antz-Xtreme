@@ -4,12 +4,6 @@ import tty
 import termios
 from enum import Enum
 
-class Direction(Enum):
-    Up = (-1, 0)
-    Down = (1, 0)
-    Left = (0, -1)
-    Right = (0, 1)
-
 class Controller:
     def __init__(self):
         self.last_input = None

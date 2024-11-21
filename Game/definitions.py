@@ -17,3 +17,9 @@ class Rarity(Enum):
     UNCOMMON = "Uncommon"
     RARE = "Rare"
     LEGENDARY = "Legendary"
+
+class Direction(Enum):
+    Up = (-1, 0)
+    Down = (1, 0)
+    Left = (0, -1)
+    Right = (0, 1)

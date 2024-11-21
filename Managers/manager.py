@@ -1,19 +1,25 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
+from Pieces.piece import Piece
 
 class Manager:
     def __init__(self):
-        self.items: Dict[str, List] = {}
+        self.pieces: Dict[str, List[Piece]] = {}
 
-    def register(self, entity):
-        symbol: str = entity.get_symbol()
-        if symbol not in self.items:
-            self.items[symbol] = []
+    def register(self, piece: Piece) -> None:
+        symbol: str = piece.get_symbol()
+        if symbol not in self.pieces:
+            self.pieces[symbol] = []
 
-        self.items[symbol].append(entity)
-        # self.board.update_piece_position(self.machines) -> move to Game
+        self.pieces[symbol].append(piece)
 
-    def get_items(self):
-        return self.items
+    def get_pieces(self) -> Dict[str, List[Piece]]:
+        return self.pieces
     
-    def get_piece_array(self):
-        return [item for sublist in self.items.values() for item in sublist]
+    def get_piece_array(self) -> List[Piece]:
+        return [piece for sublist in self.pieces.values() for piece in sublist]
+    
+    def get_piece_at_location(self, location: Tuple[int, int]) -> Tuple | None:
+        for piece in self.get_piece_array():
+            if piece.get_location() == location:
+                return piece
+        return None
