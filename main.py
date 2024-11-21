@@ -22,6 +22,7 @@ from Game.display import Display
 from Game.broadcast import broadcast
 from Game.controller import Controller
 from Game.tick import ticks
+from Game.tutorial import Tutorial
 
 
 class Game:
@@ -46,10 +47,7 @@ class Game:
         self.machines.register(MoneyMachine("$"))
         self.shops.register(Shop(piece_type = MinerRobot))
 
-        # Starting Message
-        broadcast.announce(f"You are '{self.player_icon}'.")
-        broadcast.announce(f"Mine resources. Sell resources at '$'.")
-        broadcast.announce(f"Purchase upgrades at '!'.")
+        Tutorial(self.player_icon).start()
 
     def update_board(self):
         # if adding new type of pieces, add here
