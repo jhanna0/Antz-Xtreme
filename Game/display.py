@@ -1,7 +1,7 @@
 from Game.bank import Bank
 from Game.board import Board
 from typing import List
-from Game.broadcast import BroadCast
+from Game.broadcast import broadcast
 from Inventory.inventory import Inventory
 
 class Display:
@@ -11,7 +11,7 @@ class Display:
         self.last_message = None  # Tracks the last unique message
         self.last_message_count = 0  # Tracks how many times the last message was repeated
         self._get_latest_board_size()
-        BroadCast().subscribe(self)
+        broadcast.subscribe(self)
     
     def _get_latest_board_size(self):
         self.board_rows = self.board.get_board_size()[0]

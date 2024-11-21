@@ -20,7 +20,7 @@ class Manager(Generic[T]):
     def get_pieces_list(self) -> List[T]:
         return [piece for sublist in self.pieces.values() for piece in sublist]
 
-    def get_piece_at_location(self, location: Tuple[int, int]) -> T | None:
+    def get_piece_at_location(self, location: Tuple[int, int]) -> Optional[T]:
         for piece in self.get_pieces_list():
             if piece.get_location() == location:
                 return piece

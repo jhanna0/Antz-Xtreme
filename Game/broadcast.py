@@ -13,3 +13,5 @@ class BroadCast:
     def announce(self, msg: str):
         for subscriber in self.subscribers:
             subscriber.add_message(msg)
+
+broadcast = BroadCast()

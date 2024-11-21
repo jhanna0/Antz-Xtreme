@@ -19,9 +19,9 @@ from Managers.source_manager import SourceManager
 
 # Control and View
 from Game.display import Display
-from Game.broadcast import BroadCast
+from Game.broadcast import broadcast
 from Game.controller import Controller
-from Game.tick import TickManager
+from Game.tick import ticks
 
 
 class Game:
@@ -32,7 +32,7 @@ class Game:
         self.display = Display(self.board)
 
         # Tick
-        self.ticks = TickManager(tick_rate=0.4)
+        self.ticks = ticks
 
         # Managers
         self.npcs = NPCManager()
@@ -40,24 +40,24 @@ class Game:
         self.machines = MachineManager()
         self.shops = ShopManager()
 
-        # Player
-        self.player_icon = "~"
-        self.player = Player(symbol=self.player_icon)
-
         # Bank
         self.bank = Bank()
 
+        # Player
+        self.player_icon = "~"
+        self.player = Player(bank = self.bank, symbol = self.player_icon)
+
         # Register entities
         self.machines.register(MoneyMachine("$"))
-        self.shops.register(Shop(piece_type=MinerRobot))
+        self.shops.register(Shop(piece_type = MinerRobot))
 
         # Events
         self.events = 0
         self.last_event_time = 0
 
-        BroadCast().announce(f"You are '{self.player_icon}'.")
-        BroadCast().announce(f"Mine resources. Sell resources at '$'.")
-        BroadCast().announce(f"Purchase upgrades at '!'.")
+        broadcast.announce(f"You are '{self.player_icon}'.")
+        broadcast.announce(f"Mine resources. Sell resources at '$'.")
+        broadcast.announce(f"Purchase upgrades at '!'.")
 
     def update_board(self):
         # if adding new type of pieces, add here
@@ -111,7 +111,7 @@ class Game:
             self.events += 1
 
     def run(self):
-        controller_thread = threading.Thread(target=self.controller.listen, daemon=True)
+        controller_thread = threading.Thread(target = self.controller.listen, daemon = True)
         controller_thread.start()
         self.ticks.start()
 

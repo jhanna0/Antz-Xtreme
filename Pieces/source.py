@@ -1,7 +1,7 @@
 import time
 from typing import Tuple
 from Inventory.item import Item
-from piece import Piece
+from Pieces.piece import Piece
 from Game.definitions import Rarity
 
 class Source(Piece):

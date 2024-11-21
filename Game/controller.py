@@ -2,7 +2,9 @@ from pynput import keyboard
 import sys
 import tty
 import termios
-from enum import Enum
+
+from Game.definitions import Direction
+
 
 class Controller:
     def __init__(self):

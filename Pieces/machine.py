@@ -1,5 +1,5 @@
 from Inventory.item import Item
-from piece import Piece
+from Pieces.piece import Piece
 
 
 class Machine(Piece):

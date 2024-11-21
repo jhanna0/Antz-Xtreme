@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from character import Character
+from Pieces.character import Character
 from Game.definitions import NpcState
 from Game.bank import Bank
 

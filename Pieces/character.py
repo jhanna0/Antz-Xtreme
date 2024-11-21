@@ -42,4 +42,4 @@ class Character(Piece):
         if self.any_in_inventory():
             item = self.get_inventory().pop()
             self.bank.add_money(machine.convert(item))
-            BroadCast().announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")
+            broadcast.announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")
