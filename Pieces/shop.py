@@ -1,11 +1,11 @@
 from Pieces.piece import Piece
 from typing import Tuple, Type, Optional
 from Game.tick import ticks
-from Game.broadcast import BroadCast
+from Game.broadcast import broadcast
 
 # at the moment shop will only sell Pieces, but, we should also have Item Shop
 class Shop(Piece):
-    def __init__(self, piece_type: Type[Piece], location: Tuple[int, int] = (9, 19), symbol: str = "!"):
+    def __init__(self, piece_type: Type[Piece], location: Tuple[int, int] = (0, 1), symbol: str = "!"):
         super().__init__(location, symbol)
         self.purchases = 0
         self.base_price = 5
@@ -22,7 +22,7 @@ class Shop(Piece):
     def get_price(self) -> int:
         return int(((self.purchases + 1) + self.base_price) ** 1.5)
     
-    # mmhhh don't know if this is best way
+    # don't know if this is best way
     def purchase(self) -> Optional[Piece]:
         tick = self.ticks.get_total_ticks()
         if (tick - self.last_purchase_tick) > self.cooldown:

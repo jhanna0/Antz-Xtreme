@@ -9,7 +9,7 @@ class NPCManager(Manager[NPC]):
     
     def turn_sequence(self, sources: SourceManager, machines: MachineManager):
         self._handle_source_interactions(sources)
-        self._handle_machine_interactions(sources)
+        self._handle_machine_interactions(machines)
         self._move_and_set_destinations(sources, machines)
 
     def _handle_source_interactions(self, sources: SourceManager):

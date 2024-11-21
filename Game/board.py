@@ -1,4 +1,5 @@
 from typing import Tuple, Dict, List
+from Pieces.piece import Piece
 
 class Board():
     def __init__(self, rows: int = 3, cols: int = 9):
@@ -13,10 +14,10 @@ class Board():
     def get_board(self):
         return self.board
     
-    def get_board_size(self) -> Tuple[int, int]:
+    def get_size(self) -> Tuple[int, int]:
         return (self.rows, self.cols)
     
-    def update_piece_position(self, pieces: Dict[str, List]):
+    def update_piece_position(self, pieces: Dict[str, List[Piece]]):
         self.clear_board()
         for piece_name, piece_list in pieces.items():
             for piece in piece_list:

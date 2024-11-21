@@ -1,20 +1,29 @@
+from typing import Optional
+
 class Bank:
-    def __init__(self):
-        self.money = 0  # Shared pool of money for the player and NPCs
+    _instance: Optional["Bank"] = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.balance = 100
+        return cls._instance
 
     def get_money(self) -> int:
-        return self.money
+        return self.balance
 
     def add_money(self, amount: int) -> None:
         if amount > 0:
-            self.money += amount
+            self.balance += amount
     
     def enough_money(self, amount: int) -> bool:
-        if self.money >= amount:
+        if self.balance >= amount:
             return True
         return False
 
     def remove_money(self, amount: int) -> None:
-        if amount > 0 and self.money >= amount:
-            self.money -= amount
+        if amount > 0 and self.balance >= amount:
+            self.balance -= amount
 
+# all players share the same bank.. good?
+bank = Bank()

@@ -3,15 +3,14 @@ from Inventory.inventory import Inventory, Item
 from Pieces.piece import Piece
 from Pieces.source import Source
 from Pieces.machine import Machine
-from Game.bank import Bank
-from Game.broadcast import BroadCast
+from Game.bank import bank
+from Game.broadcast import broadcast
 
 class Character(Piece):
-    def __init__(self, name: str, location: Tuple[int, int], symbol: str, bank: Bank):
+    def __init__(self, name: str, location: Tuple[int, int], symbol: str):
         super().__init__(location, symbol)
         self.inventory = Inventory()
         self.name = name
-        self.bank = bank
 
     def move(self) -> None:
         raise NotImplementedError("Move not implemented for base Character class.")
@@ -41,5 +40,5 @@ class Character(Piece):
     def interact_with_machine(self, machine: Machine) -> None:
         if self.any_in_inventory():
             item = self.get_inventory().pop()
-            self.bank.add_money(machine.convert(item))
+            bank.add_money(machine.convert(item))
             broadcast.announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")

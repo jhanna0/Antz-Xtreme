@@ -3,13 +3,13 @@ from Game.definitions import Direction
 from Pieces.shop import Shop
 from Pieces.piece import Piece # is this cyclical?
 from typing import Tuple, Optional
-from Game.broadcast import BroadCast
-from Game.bank import Bank
+from Game.broadcast import broadcast
+from Game.bank import bank
 
 class Player(Character):
 
-    def __init__(self, bank: Bank, name: str = "You", location: Tuple[int, int] = (0,0), symbol: str = "~"):
-        super().__init__(name, location, symbol, bank)
+    def __init__(self, name: str = "You", location: Tuple[int, int] = (0,0), symbol: str = "~"):
+        super().__init__(name, location, symbol)
     
     def next_move(self, direction: Direction) -> Tuple[int, int]:
         x = self.location[0] + direction.value[0]
@@ -28,14 +28,14 @@ class Player(Character):
     
     # this is janky and will probably be moved somewhere else, maybe shop manager
     # probably don't need to pass ticks
-    def purchase_from_shop(self, shop: Shop, ticks: int) -> Optional[Piece]:
+    def purchase_from_shop(self, shop: Shop) -> Optional[Piece]:
         purchase = None
         price = shop.get_price()
-        if self.bank.enough_money(price):
+        if bank.enough_money(price):
             # added a cooldown to purchasing to avoid duplicate purchases
-            purchase = shop.purchase(ticks)
+            purchase = shop.purchase()
             if purchase:
-                self.bank.remove_money(price)        
+                bank.remove_money(price)        
         else:
             broadcast.announce(f"Not enough money! Price: ${price}")
         

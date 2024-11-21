@@ -2,17 +2,16 @@ from typing import Tuple
 
 from Pieces.character import Character
 from Game.definitions import NpcState
-from Game.bank import Bank
 
 class NPC(Character):
-    def __init__(self, name: str, symbol: str, location: Tuple[int, int], bank: Bank):
-        super().__init__(name, symbol, location, bank)
+    def __init__(self, name: str, location: Tuple[int, int], symbol: str):
+        super().__init__(name, location, symbol)
         self.destination: Tuple[int, int] = (0, 0)
         self.state: NpcState = NpcState.Idle
 
     def move(self) -> None:
         # move NPC one step
-        x, y = self.location
+        x, y = self.get_location()
         dest_x, dest_y = self.destination
 
         dx = dest_x - x

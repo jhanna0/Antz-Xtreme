@@ -3,6 +3,7 @@ from Game.board import Board
 from typing import List
 from Game.broadcast import broadcast
 from Inventory.inventory import Inventory
+from Game.bank import bank
 
 class Display:
     def __init__(self, board: Board):
@@ -14,7 +15,7 @@ class Display:
         broadcast.subscribe(self)
     
     def _get_latest_board_size(self):
-        self.board_rows = self.board.get_board_size()[0]
+        self.board_rows = self.board.get_size()[0]
 
     def add_message(self, msg: str):
         if self.last_message == msg:
@@ -37,7 +38,7 @@ class Display:
         """Clear the terminal screen and reset the cursor."""
         print("\033[H\033[J", end="")  # Move cursor to the top-left and clear the screen
 
-    def update_display(self, bank: Bank, inventory: Inventory):
+    def update_display(self, inventory: Inventory):
         """Render the entire display, including the board, player info, and messages."""
         self.clear_screen()
         self._get_latest_board_size()

@@ -1,7 +1,7 @@
 from typing import Tuple
 
 class Piece():
-    def __init__(self, location: Tuple[int, int] = (0,0), symbol: str = "*", size: Tuple[int, int] = (1, 1)):
+    def __init__(self, location: Tuple[int, int] = (0, 0), symbol: str = "*", size: Tuple[int, int] = (1, 1)):
         self.location = location
         self.symbol = symbol
         self.size = size

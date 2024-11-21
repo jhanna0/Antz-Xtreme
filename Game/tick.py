@@ -10,7 +10,7 @@ class TickManager:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, tick_rate: 0.4, sub_tick_ratio: int = 3):
+    def __init__(self, tick_rate: float = 0.4, sub_tick_ratio: int = 3):
         if not hasattr(self, "_initialized"):  # Prevent reinitialization
             self._initialized = True
             self.tick_rate = tick_rate  # Full tick interval

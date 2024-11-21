@@ -8,7 +8,7 @@ from Game.board import Board
 from Pieces.player import Player
 from Pieces.robot import MinerRobot
 from Pieces.shop import Shop
-from Game.bank import Bank
+from Game.bank import bank
 
 # Managers
 from Managers.machine_manager import MachineManager
@@ -40,12 +40,9 @@ class Game:
         self.machines = MachineManager()
         self.shops = ShopManager()
 
-        # Bank
-        self.bank = Bank()
-
         # Player
         self.player_icon = "~"
-        self.player = Player(bank = self.bank, symbol = self.player_icon)
+        self.player = Player(symbol = self.player_icon)
 
         # Register entities
         self.machines.register(MoneyMachine("$"))
@@ -72,11 +69,10 @@ class Game:
 
         self.board.update_piece_position(all_objects)
         # display takes player but maybe we can avoid this
-        self.display.update_display(self.bank, self.player.inventory)
+        self.display.update_display(self.player.inventory)
 
     def player_move(self, key):
         next_move = self.player.next_move(self.controller.move_list[key])
-        
         if self.board.validate_move(next_move) and self.player.validate_move(next_move):
             self.player.move(next_move)
             self.update_board()
@@ -101,16 +97,17 @@ class Game:
         total_ticks = self.ticks.get_total_ticks()
 
         if total_ticks > 20 and self.events == 0: # first event happens early
-            self.sources.create_random_source()
+            self.sources.create_random_source(self.board.get_size())
             self.events += 1
             self.last_event_time = total_ticks
 
         elif (total_ticks - self.last_event_time) >= random.randint(180, 300): # Trigger an event every ~240 ticks
-            self.sources.create_random_source()
+            self.sources.create_random_source(self.board.get_size())
             self.last_event_time = total_ticks
             self.events += 1
 
     def run(self):
+        # what would happen if we didn't run in a thread?
         controller_thread = threading.Thread(target = self.controller.listen, daemon = True)
         controller_thread.start()
         self.ticks.start()
