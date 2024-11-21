@@ -1,6 +1,7 @@
+from typing import Tuple
+
 from character import Character
 from Game.definitions import NpcState
-from typing import Tuple
 
 class NPC(Character):
     def __init__(self, name: str, symbol: str, location: Tuple[int, int]):
@@ -23,6 +24,9 @@ class NPC(Character):
             y += 1 if dy > 0 else -1
 
         self.location = (x, y)
+    
+    def decide_next_action(self):
+        raise NotImplementedError(f"{self.__class__.__name__} has not implemented decide_next_action")
 
     def get_destination(self) -> Tuple[int, int]:
         return self.destination
@@ -33,5 +37,11 @@ class NPC(Character):
     def at_destination(self) -> bool:
         return self.destination == self.location
 
+    def transition_state(self, state: NpcState) -> None:
+        # can add broadcast here
+        self._set_state(state)
+
     def _set_state(self, state: NpcState) -> None:
         self.state = state
+
+

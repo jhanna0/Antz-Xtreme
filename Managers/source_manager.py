@@ -1,68 +1,42 @@
-import random
-from typing import Dict, List
-from Pieces.source import Source, Rarity
-from Game.board import Board
+from typing import List, Tuple, Optional
+from random import randint, choice, choices, uniform
+
+from Pieces.source import Source
 from Game.broadcast import BroadCast
 from Managers.manager import Manager
+from Game.definitions import Rarity
+from Game.definitions import source_rarity_worth_map, source_rarity_weights
 
-class SourceManager(Manager):
-    def __init__(self, board: Board, potential_sources: List[str]):
+
+class SourceManager(Manager[Source]):
+    def __init__(self, potential_sources: List[str]):
         super().__init__()
-        self.board = board
         self.potential_sources = potential_sources
 
-    def _get_random_rarity(self) -> Rarity:
-        """Determine the rarity of the source using weighted probabilities."""
-        rarity_weights = {
-            Rarity.COMMON: 70,     
-            Rarity.UNCOMMON: 20,  
-            Rarity.RARE: 9,       
-            Rarity.LEGENDARY: 1   # 1% chance
-        }
-        return random.choices(
-            population=list(rarity_weights.keys()),
-            weights=list(rarity_weights.values()),
-            k=1
-        )[0]
-
-    # yup move this into rarity master class
-    def _calculate_worth(self, rarity: Rarity) -> int:
-        """Calculate the worth of a source based on its rarity."""
-        rarity_worth_map = {
-            Rarity.COMMON: (1, 5),      
-            Rarity.UNCOMMON: (6, 10),   
-            Rarity.RARE: (11, 20),     
-            Rarity.LEGENDARY: (21, 50)
-        }
-        min_worth, max_worth = rarity_worth_map[rarity]
-        return random.randint(min_worth, max_worth)
-
-    def create_random_source(self):
-        """Register a new source with random properties and rarity."""
-        self.board_size = self.board.get_board_size()
-
-        # Generate random source properties
-        # -2 for the text offset
-        symbol = random.choice(self.potential_sources)
-        location = (
-            random.randint(0, self.board_size[0] - 1),
-            random.randint(0, self.board_size[1] - 2)
-        )
+    # need a class to handle "find best location"
+    def create_random_source(self, size: Tuple[int, int]):
+        symbol = choice(self.potential_sources)
+        location = (randint(0, size[0] - 1), randint(0, size[1] - 2)) # -2 for the text offset. handle w/ Piece.size
 
         # creation_rate should also be based on rarity
-        creation_rate = random.uniform(1.0, 5.0)
-        rarity = self._get_random_rarity()
-        worth = self._calculate_worth(rarity)
-
-        # Create and register the source
-        new_source = Source(symbol, location, creation_rate, worth, rarity)
-        self.register(new_source)
+        rarity, creation_rate, worth = self._get_random_rarity(), uniform(1.0, 5.0), self._calculate_worth(rarity)
+        self.register(Source(symbol, location, creation_rate, worth, rarity))
     
     def register(self, source: Source):
         super().register(source)
         BroadCast().announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
+    
+    def get_best_source(self) -> Optional[Source]:
+        return max(self.get_pieces(), key = lambda source: source.get_quantity(), default = None)
         
     def update(self, game_time: float):
-        """Update all sources and attempt to create items."""
-        for source in self.get_piece_array():
+        for source in self.get_pieces():
             source.try_to_create(game_time)
+
+    def _get_random_rarity(self) -> Rarity:
+        return choices(population=list(source_rarity_weights.keys()), weights=list(source_rarity_weights.values()), k=1)[0]
+
+    # move this into rarity master class?
+    def _calculate_worth(self, rarity: Rarity) -> int:
+        min_worth, max_worth = source_rarity_worth_map[rarity]
+        return randint(min_worth, max_worth)

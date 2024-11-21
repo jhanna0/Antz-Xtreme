@@ -1,6 +1,7 @@
 from Inventory.item import Item
 from piece import Piece
 
+
 class Machine(Piece):
     def __init__(self, symbol: str):
         self.symbol = symbol

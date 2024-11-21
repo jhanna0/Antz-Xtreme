@@ -13,7 +13,7 @@ class Board():
     def get_board(self):
         return self.board
     
-    def get_board_size(self):
+    def get_board_size(self) -> Tuple[int, int]:
         return (self.rows, self.cols)
     
     def update_piece_position(self, pieces: Dict[str, List]):

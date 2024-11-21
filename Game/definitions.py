@@ -23,3 +23,17 @@ class Direction(Enum):
     Down = (1, 0)
     Left = (0, -1)
     Right = (0, 1)
+
+source_rarity_worth_map = {
+    Rarity.COMMON: (1, 5),      
+    Rarity.UNCOMMON: (6, 10),   
+    Rarity.RARE: (11, 20),     
+    Rarity.LEGENDARY: (21, 50)
+}
+
+source_rarity_weights = {
+    Rarity.COMMON: 70,     
+    Rarity.UNCOMMON: 20,  
+    Rarity.RARE: 9,       
+    Rarity.LEGENDARY: 1   # 1% chance
+}
