@@ -7,7 +7,7 @@ from Game.tick import ticks
 
 class Source(Piece):
     def __init__(self, symbol: str, location: Tuple[int, int], creation_rate: float, worth: int, rarity: Rarity):
-        super().__init__(location, symbol)
+        super().__init__(location, symbol, size=(2, 1))
         self.capacity = 6
         self.quantity = 0
         self.last_grow = 0
@@ -33,3 +33,6 @@ class Source(Piece):
             self.quantity -= 1
             return self.item
         return None
+
+    def get_display(self) -> Tuple[str]:
+        return f"{self.symbol}{self.quantity}"

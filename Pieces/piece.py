@@ -15,9 +15,11 @@ class Piece():
     def get_symbol(self) -> str:
         return self.symbol
     
-    def get_display(self) -> Tuple[str]:
-        width, height = self.size
-        return [self.symbol * width for _ in range(height)]
+    # assert that display matches size?
+    def get_footprint(self) -> str:
+        """Return how the piece should look on board"""
+        width, _ = self.size
+        return f"{self.symbol}"*width
 
     def get_size(self) -> Tuple[int, int]:
         return self.size
