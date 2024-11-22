@@ -8,7 +8,7 @@ from Game.definitions import Rarity
 from Game.definitions import source_rarity_worth_map, source_rarity_weights
 
 class SourceManager(Manager[Source]):
-    def __init__(self, potential_sources: List[str]):
+    def __init__(self, potential_sources: List[str] = ["@", "#", "%", "T"]):
         super().__init__()
         self.potential_sources = potential_sources
 

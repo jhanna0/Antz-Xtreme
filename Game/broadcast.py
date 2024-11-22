@@ -1,5 +1,3 @@
-
-
 class BroadCast:
     _instance = None
 
@@ -16,4 +14,5 @@ class BroadCast:
         for subscriber in self.subscribers:
             subscriber.add_message(msg)
 
+# maybe the only fine example of singleton
 broadcast = BroadCast()

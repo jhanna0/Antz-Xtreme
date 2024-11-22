@@ -30,7 +30,7 @@ class Game:
 
         # Managers
         self.npcs = NPCManager()
-        self.sources = SourceManager(["@", "#", "%", "T"])
+        self.sources = SourceManager()
         self.machines = MachineManager()
         self.shops = ShopManager()
         self.events = Events(self.sources)
@@ -48,7 +48,7 @@ class Game:
     def _update_board(self):
         # if adding new type of pieces, add here
         # can make a registration method too
-        all_objects = {
+        self.all_objects = {
             self.player_icon: [self.player],
             **self.npcs.get_pieces(),
             **self.sources.get_pieces(),
@@ -56,7 +56,7 @@ class Game:
             **self.shops.get_pieces(),
         }
 
-        self.board.update_piece_position(all_objects)
+        self.board.update_piece_position(self.all_objects)
         self.display.update_display(self.player.inventory) # can we avoid passing player's inventory?
 
     def player_move(self, key):
@@ -98,7 +98,7 @@ class Game:
         self.controller.start()
 
         # this is kind of turn based kind of tick based- probably can be improved
-        # does it make sense to just sleep at tick_rate?
+        # seems like it's kind of just sleeping between actions, but really we should be having actions take a certain amount of ticks?
         # I do like this because it blocks action
         while self.controller.running:
             sub_tick, tick = ticks.tick()

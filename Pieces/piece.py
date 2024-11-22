@@ -15,6 +15,10 @@ class Piece():
     def get_symbol(self) -> str:
         return self.symbol
     
+    def get_display(self) -> Tuple[str]:
+        width, height = self.size
+        return [self.symbol * width for _ in range(height)]
+
     def get_size(self) -> Tuple[int, int]:
         return self.size
     

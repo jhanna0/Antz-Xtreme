@@ -40,6 +40,6 @@ class TickManager:
         return self.current_tick
 
     def wait_until_next_tick(self) -> None:
-        time.sleep(0.01) # supposedly helps with CPU rest
+        time.sleep(0.001) # supposedly helps with CPU rest
 
 ticks = TickManager()

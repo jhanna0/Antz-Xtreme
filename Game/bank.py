@@ -39,4 +39,5 @@ class Bank:
 
 # all players share the same bank.. good?
 # probably not, because now multipler requires passing different bank logic to NPCs
+# probably don't make a singleton
 bank = Bank()
