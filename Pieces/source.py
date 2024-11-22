@@ -34,5 +34,5 @@ class Source(Piece):
             return self.item
         return None
 
-    def get_display(self) -> Tuple[str]:
+    def get_footprint(self) -> str:
         return f"{self.symbol}{self.quantity}"

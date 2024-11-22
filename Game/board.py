@@ -17,6 +17,7 @@ class Board():
     
     # these need to be dynamic in case we make board grow
     def get_size(self) -> Tuple[int, int]:
+        """Returns (height/rows, width/columns)"""
         return (self.rows, self.cols)
     
     def update_piece_position(self, pieces: Dict[str, List[Piece]]):
@@ -28,8 +29,10 @@ class Board():
     
     # ok kind of working. a couple problems:
     # 1. we have to be on exact location to interact with the object
+    # 1.5 but we touch any part of footprint and it stops displaying the piece
     # 2. can only spawn one object at a time now
     # 3. validate_move only checks the pieces central location as well
+    # 4. we use piece_size and footprint interchangebly but they could be different
     def can_place(self, piece_size: Tuple[int, int], location: Tuple[int, int]) -> bool:
         width, height = piece_size
         for dy in range(width):
@@ -55,6 +58,7 @@ class Board():
         for dx in range(width):
             self.board[location[0]][location[1] + dx] = footprint[dx]
 
+    # update this to check footprint
     def validate_move(self, move: Tuple[int, int]):
         if not (0 <= move[0] < self.rows) or not (0 <= move[1] < self.cols):
             return False
