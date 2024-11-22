@@ -40,5 +40,5 @@ class Character(Piece):
     def interact_with_machine(self, machine: Machine) -> None:
         if self.any_in_inventory():
             item = self.get_inventory().pop()
-            bank.add_money(machine.convert(item))
+            bank.add_money(machine.convert(item)) # horrible to need bank singleton to interact with machine. just pass
             broadcast.announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")

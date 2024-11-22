@@ -24,6 +24,9 @@ class Source(Piece):
 
     def get_quantity(self):
         return self.quantity
+    
+    def is_depleted(self):
+        return self.quantity == 0
 
     def take(self):
         if self.quantity > 0:

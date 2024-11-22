@@ -57,7 +57,7 @@ class Game:
         }
 
         self.board.update_piece_position(self.all_objects)
-        self.display.update_display(self.player.inventory) # can we avoid passing player's inventory?
+        self.display.update_display(self.player.inventory.get_items_symbols()) # can we avoid passing player's inventory?
 
     def player_move(self, key):
         next_move = self.player.next_move(self.controller.move_list[key])

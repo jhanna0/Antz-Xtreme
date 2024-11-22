@@ -13,9 +13,9 @@ class SourceManager(Manager[Source]):
         self.potential_sources = potential_sources
 
     # need a class to handle "find best location"
-    def create_random_source(self, size: Tuple[int, int] = (1, 2)):
+    def create_random_source(self, board_size: Tuple[int, int] = (1, 2)):
         symbol = choice(self.potential_sources)
-        location = (randint(0, size[0] - 1), randint(0, size[1] - 2)) # -2 for the text offset. handle w/ Piece.size
+        location = (randint(0, board_size[0] - 1), randint(0, board_size[1] - 2)) # -2 for the text offset. handle w/ Piece.size
 
         # creation_rate should also be based on rarity
         rarity = self._get_random_rarity()

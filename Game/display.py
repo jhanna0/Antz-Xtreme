@@ -1,8 +1,6 @@
-from Game.bank import Bank
 from Game.board import Board
 from typing import List
 from Game.broadcast import broadcast
-from Inventory.inventory import Inventory
 from Game.bank import bank
 
 class Display:
@@ -34,13 +32,12 @@ class Display:
     def clear_screen(self):
         print("\033[H\033[J", end="")  # Move cursor to the top-left and clear the screen
 
-    def update_display(self, inventory: Inventory):
+    def update_display(self, inventory: List[str]):
         # Entire display including board, player info, and messages
         self.clear_screen()
         rows, cols = self.board.get_size()
         money_string = bank.get_money_string()
-        inventory_symbols = inventory.get_items_symbols()
-        inventory_string = "[" + ' '.join(inventory_symbols) + "]"
+        inventory_string = "[" + ' '.join(inventory) + "]"
 
         spacing = (cols * 2) - (len(money_string) + len(inventory_string)) - 1
 

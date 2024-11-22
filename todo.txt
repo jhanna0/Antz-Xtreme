@@ -5,3 +5,7 @@
 - config file that creates relationship between worth/cost of sources, items, purchases so play is smoother
 - globally implement speed which effects tick rate etc
 - possible winning - build up to final item goal full inv? like 2048 but full inv. combined craft
+
+- game concept- it costs to guess the word
+- need X amount of previous letter to unlock the next letter?
+- what do robots do?

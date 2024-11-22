@@ -16,4 +16,4 @@ class Tutorial():
         time.sleep(0.5)
         for msg in self.intro_msgs:
             broadcast.announce(msg)
-            time.sleep(2.5)
+            time.sleep(2)
