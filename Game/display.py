@@ -44,7 +44,7 @@ class Display:
         # game board
         for i, row in enumerate(self.board.get_board()):
             print(f"\033[{i + 1};1H", end="")  # Move to the specific row
-            print(' '.join(row))
+            print(' '.join([str(x) for x in row]))
         
         # player info
         print(f"\033[{rows + 1};1H", end="")  # Move to the row below the board

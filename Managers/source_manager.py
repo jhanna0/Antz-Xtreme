@@ -1,43 +1,35 @@
-from typing import List, Tuple, Optional
-from random import randint, choice, choices, uniform
+from typing import List, Optional
 
 from Pieces.source import Source
 from Game.broadcast import broadcast
+from Game.generate import Generator
 from Managers.manager import Manager
-from Game.definitions import Rarity
-from Game.definitions import source_rarity_worth_map, source_rarity_weights
+from Game.definitions import source_rarity_weights, source_creation_rate, source_worth_map
 
 class SourceManager(Manager[Source]):
-    def __init__(self, potential_sources: List[str] = ["@", "#", "%", "T"]):
+    def __init__(self, generator: Generator):
         super().__init__()
-        self.potential_sources = potential_sources
+        self.generator = generator
+        self.potential_sources = (176, 223)
 
     # need a class to handle "find best location"
-    def create_random_source(self, board_size: Tuple[int, int] = (1, 2)):
-        symbol = choice(self.potential_sources)
-        location = (randint(0, board_size[0] - 1), randint(0, board_size[1] - 2)) # -2 for the text offset. handle w/ Piece.size
+    def create_random_source(self):
+        symbol = chr(self.generator.choose_from_range(self.potential_sources))
+        location = self.generator.find_location_for_piece((2, 1))
 
-        # creation_rate should also be based on rarity
-        rarity = self._get_random_rarity()
-        creation_rate = uniform(1.0, 5.0)
-        worth = self._calculate_worth(rarity)
+        rarity = self.generator.choose_rarity(source_rarity_weights)
+        creation_rate = self.generator.choose_from_list(source_creation_rate[rarity])
+        worth = self.generator.choose_from_list(source_worth_map[rarity])
         self.register(Source(symbol, location, creation_rate, worth, rarity))
     
     def register(self, source: Source):
         super().register(source)
         broadcast.announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
-    
-    def get_best_source(self) -> Optional[Source]:
-        return max(self.get_pieces_list(), key = lambda source: source.get_quantity(), default = None)
 
     def update(self):
         for source in self.get_pieces_list():
             source.grow()
 
-    def _get_random_rarity(self) -> Rarity:
-        return choices(population=list(source_rarity_weights.keys()), weights=list(source_rarity_weights.values()), k=1)[0]
+    def get_best_source(self) -> Optional[Source]:
+        return max(self.get_pieces_list(), key = lambda source: source.get_quantity(), default = None)
 
-    # move this into rarity master class?
-    def _calculate_worth(self, rarity: Rarity) -> int:
-        min_worth, max_worth = source_rarity_worth_map[rarity]
-        return randint(min_worth, max_worth)

@@ -12,6 +12,7 @@ from Managers.npc_manager import NPCManager
 from Managers.shop_manager import ShopManager
 from Pieces.machine import MoneyMachine
 from Managers.source_manager import SourceManager
+from Game.generate import Generator
 
 # Control and View
 from Game.display import Display
@@ -30,18 +31,19 @@ class Game:
 
         # Managers
         self.npcs = NPCManager()
-        self.sources = SourceManager()
+        self.generator = Generator(self.board)
+        self.sources = SourceManager(self.generator)
         self.machines = MachineManager()
         self.shops = ShopManager()
         self.events = Events(self.sources)
 
         # Player
         self.player_icon = "~"
-        self.player = Player(symbol = self.player_icon)
+        self.player = Player(symbol = self.player_icon, location = self.generator.find_location_for_piece())
 
         # Register entities
-        self.machines.register(MoneyMachine("$"))
-        self.shops.register(Shop(piece_type = MinerRobot))
+        self.machines.register(MoneyMachine(symbol = "$", location = self.generator.find_location_for_piece(edge_preference=True)))
+        self.shops.register(Shop(piece_type = MinerRobot, location = self.generator.find_location_for_piece(edge_preference=True)))
 
         Tutorial(self.player_icon).start()
 

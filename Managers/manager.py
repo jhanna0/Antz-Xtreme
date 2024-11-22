@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple, TypeVar, Generic, Optional
-from Pieces.piece import Piece
 
+from Pieces.piece import Piece
+# all managers will probably need Generate now
 
 T = TypeVar("T", bound=Piece)  # Constrain T to subclasses of Piece
 

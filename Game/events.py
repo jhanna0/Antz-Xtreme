@@ -16,12 +16,12 @@ class Events():
         current_tick = ticks.get_current_tick()
 
         if current_tick > 20 and self.events == 0: # first event happens early
-            self.sources.create_random_source(board_size)
+            self.sources.create_random_source()
             self.events += 1
             self.last_event_time = current_tick
 
         elif (current_tick - self.last_event_time) >= randint(50, 100): # Trigger an event every ~240 ticks
-            self.sources.create_random_source(board_size)
+            self.sources.create_random_source()
             self.last_event_time = current_tick
             self.events += 1
 
