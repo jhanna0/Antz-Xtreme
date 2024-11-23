@@ -23,14 +23,15 @@ class Board():
     def update_piece_position(self, pieces: List[Piece]):
         self.clear_board()
         for piece in pieces:
-            if self.can_place(piece.get_size(), piece.get_location()):
-                self.place(piece)
+            self.place(piece)
+            # if self.can_place(piece.get_size(), piece.get_location()):
+            #     # broadcast.announce(f"placing {piece.get_symbol()}, {piece.get_location()}")
+            #     self.place(piece)
             
             # else:
             #     # need to handle invalid pieces more gracefully
             #     broadcast.announce(f"can't place {piece.get_symbol()}, {piece.get_location()}")
 
-    
     # ok kind of working. a couple problems:
     # 1. we have to be on exact location to interact with the object
     # 1.5 but we touch any part of footprint and it stops displaying the piece
@@ -55,12 +56,13 @@ class Board():
     def place(self, piece: Piece) -> None:
         """Place a piece on the board. Only supports horizontal at the moment."""
         # to flip to placing horizontally, we just increment (+ dy) over cols instead of rows
-        footprint = piece.get_footprint()
-        width = piece.get_size()[0]
+        footprint = piece.get_footprint().split("\n")
+        height, width = piece.get_size()
         location = piece.get_location()
-        # broadcast.announce(f"{footprint} {width} {location} {piece.get_type()}")
-        for dx in range(width):
-            self.board[location[0]][location[1] + dx] = footprint[dx]
+        broadcast.announce(f"{width} {height} {footprint} {location} {piece.get_type()} {self.get_size()}")
+        for dy in range(height):
+            for dx in range(width):
+                self.board[location[0] + dy][location[1] + dx] = footprint[dy][dx]
 
     # update this to check footprint
     def validate_move(self, move: Tuple[int, int]):

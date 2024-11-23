@@ -22,7 +22,7 @@ from Game.controller import Controller
 from Game.tick import ticks
 from Game.tutorial import Tutorial
 from Game.definitions import Direction
-from Pieces.attack import Projectile
+from Pieces.attack import Projectile, Ultimate
 
 
 class Game:
@@ -32,7 +32,8 @@ class Game:
         self.controller = Controller()
         self.display = Display(self.board)
         self.move_list = {"w": Direction.Up, "a": Direction.Left, "s": Direction.Down, "d": Direction.Right}
-        self.attack_list = {"i": Direction.Up, "j": Direction.Left, "k": Direction.Down, "l": Direction.Right}
+        self.directional_attack_list = {"i": Direction.Up, "j": Direction.Left, "k": Direction.Down, "l": Direction.Right}
+        self.ultimate = ["q"]
         
         # Managers
         self.npcs = NPCManager()
@@ -75,9 +76,16 @@ class Game:
             if self.board.validate_move(next_move) and self.player.validate_move(next_move):
                 self.player.move(next_move)
         
-        elif key in self.attack_list:
-            self.attacks.try_to_register(Projectile(location = self.player.get_location(), direction = self.attack_list[key]))
+        elif key in self.directional_attack_list:
+            self.attacks.try_to_register(Projectile(
+                location = self.player.get_location(),
+                direction = self.directional_attack_list[key],
+                board = self.board)
+            )
     
+        elif key in self.ultimate:
+            self.attacks.try_to_register(Ultimate(self.board.get_size()))
+
     # probably can make a player manager class but do we reallllly need to just to pass every object ever??
     def player_turn_sequence(self):
         source = self.sources.get_piece_at_location(self.player.get_location())

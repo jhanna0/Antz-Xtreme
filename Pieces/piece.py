@@ -15,14 +15,17 @@ class Piece():
     def get_symbol(self) -> str:
         return self.symbol
     
-    # assert that display matches size?
     def get_footprint(self) -> str:
-        """Return how the piece should look on board"""
-        width, _ = self.size
-        return f"{self.symbol}"*width
+        """Returns what piece should look like on the board."""
+        height, width = self.size
+        row = f"{self.symbol}" * width
+        return "\n".join([row] * height)
 
     def get_size(self) -> Tuple[int, int]:
         return self.size
+
+    def set_size(self, size: Tuple[int, int]) -> None:
+        self.size = size
     
     def get_distance_from(self, location: Tuple[int, int]) -> Tuple[int, int]:
         diff_x = self.location[0] - location[0]

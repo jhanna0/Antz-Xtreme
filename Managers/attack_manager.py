@@ -6,6 +6,7 @@ from Game.board import Board
 from Game.tick import ticks
 from Managers.npc_manager import NPCManager
 from Managers.source_manager import SourceManager
+from Game.broadcast import broadcast
 
 class AttackManager(Manager[Attack]):
     def __init__(self, board: Board):
@@ -22,14 +23,16 @@ class AttackManager(Manager[Attack]):
 
     def update(self, npcs: NPCManager, sources: SourceManager) -> None:
         self.calculate_damage(npcs, sources)
-        self.pieces = [piece for piece in self.get_pieces() if piece.validate_next_turn(self.board)]
+        self.pieces = [piece for piece in self.get_pieces() if piece.validate_next_turn()]
         for attack in self.get_pieces():
             attack.next_turn()
     
     def calculate_damage(self, npcs: NPCManager, sources: SourceManager) -> None:
         remove_attacks: Set = set()
+        # broadcast.announce(f"Attack started")
         
         for attack in self.get_pieces():
+            broadcast.announce(f"Attack {attack.get_type()}")
 
             for npc in attack.calculate_hits(npcs):
                 npcs.remove_piece(npc)
