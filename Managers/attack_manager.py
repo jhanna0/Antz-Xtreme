@@ -4,8 +4,6 @@ from Pieces.attack import Attack
 from Managers.manager import Manager
 from Game.board import Board
 from Game.tick import ticks
-from Managers.npc_manager import NPCManager
-from Managers.source_manager import SourceManager
 from Game.broadcast import broadcast
 
 class AttackManager(Manager[Attack]):
@@ -21,21 +19,16 @@ class AttackManager(Manager[Attack]):
             self.register(attack)
             self.last_attack = current_tick
 
-    def update(self, npcs: NPCManager, sources: SourceManager) -> None:
-        self.calculate_damage(npcs, sources)
+    def update(self) -> None:
+        self.apply_effects()
         self.clear_invalid_attacks()
         for attack in self.get_pieces():
             attack.next_turn()
     
-    def calculate_damage(self, npcs: NPCManager, sources: SourceManager) -> None:
+    def apply_effects(self) -> None:
         # we could even have attack responsible for which managers to check (prevents projectile from removing source)
         for attack in self.get_pieces():
-            for npc in attack.calculate_hits(npcs):
-                npcs.remove_piece(npc)
-
-            # make projectiles not affect sources later
-            for source in attack.calculate_hits(sources):
-                sources.remove_piece(source)
+            attack.calculate_impact()
 
     def clear_invalid_attacks(self):
         self.pieces = [piece for piece in self.get_pieces() if piece.validate_next_turn()]

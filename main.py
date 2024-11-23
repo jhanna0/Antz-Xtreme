@@ -80,18 +80,22 @@ class Game:
             self.attacks.try_to_register(Projectile(
                 location = self.player.get_location(),
                 direction = self.directional_attack_list[key],
-                board = self.board)
+                board = self.board,
+                affects = [self.npcs, self.sources])
             )
     
         elif key in self.ultimate:
-            self.attacks.try_to_register(Ultimate(self.board.get_size()))
+            self.attacks.try_to_register(Ultimate(
+                size = self.board.get_size(),
+                affects = [self.npcs, self.sources]
+            ))
 
     def _sub_tick_sequence(self):
         key = self.controller.process_latest_input()
         if key:
             self.player_move(key)
         
-        self.attacks.update(self.npcs, self.sources)
+        self.attacks.update()
         self._update_board()
 
     # probably can make a player manager class but do we reallllly need to just to pass every object ever??
