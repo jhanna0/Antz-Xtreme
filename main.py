@@ -40,7 +40,7 @@ class Game:
         self.sources = SourceManager(self.generator)
         self.machines = MachineManager()
         self.shops = ShopManager()
-        self.attacks = AttackManager(self.board, self.npcs)
+        self.attacks = AttackManager(self.board)
         self.events = Events(self.sources)
 
         # Player
@@ -99,7 +99,7 @@ class Game:
         if key:
             self.player_move(key)
         
-        self.attacks.update()
+        self.attacks.update(self.npcs, self.sources)
         self._update_board()
 
     def _full_tick_sequence(self):
