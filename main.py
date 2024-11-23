@@ -59,12 +59,12 @@ class Game:
         # can make a registration method too
         # determines render order (smaller index take priority)
         self.all_objects = [
-            *self.sources.get_pieces(),
-            *self.machines.get_pieces(),
-            *self.shops.get_pieces(),
             self.player,
             *self.npcs.get_pieces(),
-            *self.attacks.get_pieces()
+            *self.attacks.get_pieces(),
+            *self.sources.get_pieces(),
+            *self.machines.get_pieces(),
+            *self.shops.get_pieces()
         ]
 
         self.board.update_piece_position(self.all_objects)
@@ -86,6 +86,14 @@ class Game:
         elif key in self.ultimate:
             self.attacks.try_to_register(Ultimate(self.board.get_size()))
 
+    def _sub_tick_sequence(self):
+        key = self.controller.process_latest_input()
+        if key:
+            self.player_move(key)
+        
+        self.attacks.update(self.npcs, self.sources)
+        self._update_board()
+
     # probably can make a player manager class but do we reallllly need to just to pass every object ever??
     def player_turn_sequence(self):
         source = self.sources.get_piece_at_location(self.player.get_location())
@@ -101,14 +109,6 @@ class Game:
             purchase = self.player.purchase_from_shop(shop)
             if purchase:
                 self.npcs.register(purchase)
-    
-    def _sub_tick_sequence(self):
-        key = self.controller.process_latest_input()
-        if key:
-            self.player_move(key)
-        
-        self.attacks.update(self.npcs, self.sources)
-        self._update_board()
 
     def _full_tick_sequence(self):
         self.sources.update()

@@ -5,7 +5,7 @@ from Game.board import Board
 from Managers.manager import Manager
 from Managers.npc_manager import NPCManager
 from Game.broadcast import broadcast
-
+from Game.tick import ticks
 
 class Attack(Piece):
     def __init__(self, location: Tuple[int, int], symbol: str = "*"):
@@ -46,13 +46,15 @@ class Ultimate(Attack):
     def __init__(self, size: Tuple[int, int]):
         super().__init__((0, 0))
         self.set_size(size)
-        broadcast.announce(f"{self.get_size()}, {self.get_footprint()}, {self.get_symbol()}")
+        self.start_tick = ticks.get_current_tick()
+        self.duration = 5
+        # broadcast.announce(f"{self.get_size()}, {self.get_footprint()}, {self.get_symbol()}")
 
     def calculate_hits(self, manager: Manager) -> List[Piece]:
         return manager.get_pieces()
 
     def validate_next_turn(self) -> bool:
-        return False
+        return ticks.get_tick_difference(self.start_tick) < self.duration
 
-    def next_turn(self, everything: List) -> None:
+    def next_turn(self) -> None:
         pass

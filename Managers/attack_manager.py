@@ -12,7 +12,7 @@ class AttackManager(Manager[Attack]):
     def __init__(self, board: Board):
         super().__init__()
         self.board = board
-        self.cool_down = 2
+        self.cool_down = 2 # probably could go into Character class
         self.last_attack = 0 # probably could go into Character class
     
     def try_to_register(self, attack: Attack) -> None:
@@ -30,6 +30,7 @@ class AttackManager(Manager[Attack]):
     def calculate_damage(self, npcs: NPCManager, sources: SourceManager) -> None:
         remove_attacks: Set = set()
         # broadcast.announce(f"Attack started")
+        # broadcast.announce(str(self.pieces))
         
         for attack in self.get_pieces():
             broadcast.announce(f"Attack {attack.get_type()}")

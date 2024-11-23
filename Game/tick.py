@@ -39,6 +39,9 @@ class TickManager:
     def get_current_tick(self) -> int:
         return self.current_tick
 
+    def get_tick_difference(self, tick: int):
+        return self.current_tick - tick
+
     def wait_until_next_tick(self) -> None:
         time.sleep(0.001) # supposedly helps with CPU rest
 

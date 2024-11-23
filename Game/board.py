@@ -59,7 +59,7 @@ class Board():
         footprint = piece.get_footprint().split("\n")
         height, width = piece.get_size()
         location = piece.get_location()
-        broadcast.announce(f"{width} {height} {footprint} {location} {piece.get_type()} {self.get_size()}")
+        # broadcast.announce(f"{width} {height} {footprint} {location} {piece.get_type()} {self.get_size()}")
         for dy in range(height):
             for dx in range(width):
                 self.board[location[0] + dy][location[1] + dx] = footprint[dy][dx]
