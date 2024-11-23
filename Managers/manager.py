@@ -16,6 +16,7 @@ class Manager(Generic[T]):
         return self.pieces
 
     def get_piece_at_location(self, location: Tuple[int, int]) -> Optional[T]:
+        """Returns the first instance of a piece at that location. Could return list."""
         for piece in self.get_pieces():
             if piece.get_location() == location:
                 return piece
@@ -23,3 +24,8 @@ class Manager(Generic[T]):
 
     def get_nearest_piece(self, location: Tuple[int, int]) -> Optional[T]:
         return min(self.get_pieces(), key = lambda piece: piece.get_distance_from(location), default = None)
+
+    def remove_piece(self, remove: Piece) -> None:
+        """Removes a piece from self.pieces"""
+        if remove in self.pieces:
+            self.pieces.remove(remove)

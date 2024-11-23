@@ -4,14 +4,11 @@ import tty
 import termios
 import threading
 from typing import Optional
-
-from Game.definitions import Direction
-
+from Game.broadcast import broadcast
 
 class Controller:
     def __init__(self):
         self.last_input = None
-        self.move_list = {"w": Direction.Up, "a": Direction.Left, "s": Direction.Down, "d": Direction.Right}
         self.exit_key = "p"
         self.running = True
 
@@ -31,8 +28,7 @@ class Controller:
         if key == self.exit_key:
             self.stop()
         
-        if key and key in self.move_list:
-            return key
+        return key
 
     def _get_last_input(self):
         """Return the last input and reset it."""

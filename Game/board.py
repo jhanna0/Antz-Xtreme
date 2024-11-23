@@ -25,6 +25,10 @@ class Board():
         for piece in pieces:
             if self.can_place(piece.get_size(), piece.get_location()):
                 self.place(piece)
+            
+            # else:
+            #     # need to handle invalid pieces more gracefully
+            #     broadcast.announce(f"can't place {piece.get_symbol()}, {piece.get_location()}")
 
     
     # ok kind of working. a couple problems:

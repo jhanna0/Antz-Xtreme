@@ -7,7 +7,7 @@ from Managers.machine_manager import MachineManager
 
 # pass location in future from NPCManager
 class MinerRobot(NPC):
-    def __init__(self, name: str, location: Tuple[int, int] = (9, 18), symbol: str = "*"):
+    def __init__(self, name: str, location: Tuple[int, int] = (9, 18), symbol: str = "~"):
         super().__init__(name, location, symbol)
         self.inventory_types: Set[str] = set()
         self.add_inventory_type("@")

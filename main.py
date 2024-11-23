@@ -5,13 +5,14 @@ from Game.events import Events
 from Pieces.player import Player
 from Pieces.robot import MinerRobot
 from Pieces.shop import Shop
+from Pieces.machine import MoneyMachine
 
 # Managers
 from Managers.machine_manager import MachineManager
 from Managers.npc_manager import NPCManager
 from Managers.shop_manager import ShopManager
-from Pieces.machine import MoneyMachine
 from Managers.source_manager import SourceManager
+from Managers.attack_manager import AttackManager
 from Game.generate import Generator
 
 # Control and View
@@ -20,6 +21,8 @@ from Game.broadcast import broadcast
 from Game.controller import Controller
 from Game.tick import ticks
 from Game.tutorial import Tutorial
+from Game.definitions import Direction
+from Pieces.attack import Projectile
 
 
 class Game:
@@ -28,13 +31,16 @@ class Game:
         self.board = Board(10, 20)
         self.controller = Controller()
         self.display = Display(self.board)
-
+        self.move_list = {"w": Direction.Up, "a": Direction.Left, "s": Direction.Down, "d": Direction.Right}
+        self.attack_list = {"i": Direction.Up, "j": Direction.Left, "k": Direction.Down, "l": Direction.Right}
+        
         # Managers
         self.npcs = NPCManager()
         self.generator = Generator(self.board)
         self.sources = SourceManager(self.generator)
         self.machines = MachineManager()
         self.shops = ShopManager()
+        self.attacks = AttackManager(self.board, self.npcs)
         self.events = Events(self.sources)
 
         # Player
@@ -50,22 +56,27 @@ class Game:
     def _update_board(self):
         # if adding new type of pieces, add here
         # can make a registration method too
-        # determines render order
+        # determines render order (smaller index take priority)
         self.all_objects = [
             *self.sources.get_pieces(),
             *self.machines.get_pieces(),
             *self.shops.get_pieces(),
             self.player,
-            *self.npcs.get_pieces()
+            *self.npcs.get_pieces(),
+            *self.attacks.get_pieces()
         ]
 
         self.board.update_piece_position(self.all_objects)
         self.display.update_display(self.player.inventory.get_items_symbols())
 
     def player_move(self, key):
-        next_move = self.player.next_move(self.controller.move_list[key])
-        if self.board.validate_move(next_move) and self.player.validate_move(next_move):
-            self.player.move(next_move)
+        if key in self.move_list:
+            next_move = self.player.next_move(self.move_list[key])
+            if self.board.validate_move(next_move) and self.player.validate_move(next_move):
+                self.player.move(next_move)
+        
+        elif key in self.attack_list:
+            self.attacks.try_to_register(Projectile(location = self.player.get_location(), direction = self.attack_list[key]))
     
     # probably can make a player manager class but do we reallllly need to just to pass every object ever??
     def player_turn_sequence(self):
@@ -82,12 +93,13 @@ class Game:
             purchase = self.player.purchase_from_shop(shop)
             if purchase:
                 self.npcs.register(purchase)
-                self.player_move("a") #janky but let's kick player out of shop after purchase
     
     def _sub_tick_sequence(self):
         key = self.controller.process_latest_input()
         if key:
             self.player_move(key)
+        
+        self.attacks.update()
         self._update_board()
 
     def _full_tick_sequence(self):
