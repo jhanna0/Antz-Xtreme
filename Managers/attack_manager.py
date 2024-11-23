@@ -23,24 +23,19 @@ class AttackManager(Manager[Attack]):
 
     def update(self, npcs: NPCManager, sources: SourceManager) -> None:
         self.calculate_damage(npcs, sources)
-        self.pieces = [piece for piece in self.get_pieces() if piece.validate_next_turn()]
+        self.clear_invalid_attacks()
         for attack in self.get_pieces():
             attack.next_turn()
     
     def calculate_damage(self, npcs: NPCManager, sources: SourceManager) -> None:
-        remove_attacks: Set = set()
-        # broadcast.announce(f"Attack started")
-        # broadcast.announce(str(self.pieces))
-        
+        # we could even have attack responsible for which managers to check (prevents projectile from removing source)
         for attack in self.get_pieces():
-            broadcast.announce(f"Attack {attack.get_type()}")
-
             for npc in attack.calculate_hits(npcs):
                 npcs.remove_piece(npc)
-                remove_attacks.add(attack)
 
+            # make projectiles not affect sources later
             for source in attack.calculate_hits(sources):
                 sources.remove_piece(source)
-                remove_attacks.add(attack)
 
-        self.pieces = [piece for piece in self.get_pieces() if piece not in remove_attacks]
+    def clear_invalid_attacks(self):
+        self.pieces = [piece for piece in self.get_pieces() if piece.validate_next_turn()]

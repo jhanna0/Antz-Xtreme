@@ -2,7 +2,7 @@ from typing import Tuple
 
 from Inventory.item import Item
 from Pieces.piece import Piece
-from Game.definitions import Rarity
+from Game.definitions import Rarity, superscript_mapping
 from Game.tick import ticks
 
 class Source(Piece):
@@ -35,4 +35,4 @@ class Source(Piece):
         return None
 
     def get_footprint(self) -> str:
-        return f"{self.symbol}{self.quantity}"
+        return f"{self.symbol}{superscript_mapping.get(self.quantity, self.quantity)}"

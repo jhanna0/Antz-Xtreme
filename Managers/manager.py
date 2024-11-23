@@ -14,7 +14,7 @@ class Manager(Generic[T]):
         self.pieces.append(piece)
 
     def get_pieces(self) -> List[T]:
-        return self.pieces
+        return list(self.pieces) # without list() this we were seeing weird behavior when removing from list in a loop
 
     def get_piece_at_location(self, location: Tuple[int, int]) -> Optional[T]:
         """Returns the first instance of a piece at that location"""

@@ -45,3 +45,16 @@ source_creation_rate = {
     Rarity.RARE: (10, 20),     
     Rarity.LEGENDARY: (1, 10)
 }
+
+superscript_mapping = {
+    0: chr(0x2070),  # ⁰
+    1: chr(0x00B9),  # ¹
+    2: chr(0x00B2),  # ²
+    3: chr(0x00B3),  # ³
+    4: chr(0x2074),  # ⁴
+    5: chr(0x2075),  # ⁵
+    6: chr(0x2076),  # ⁶
+    7: chr(0x2077),  # ⁷
+    8: chr(0x2078),  # ⁸
+    9: chr(0x2079)   # ⁹
+}

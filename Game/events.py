@@ -20,8 +20,7 @@ class Events():
             self.events += 1
             self.last_event_time = current_tick
 
-        elif (current_tick - self.last_event_time) >= randint(50, 100): # Trigger an event every ~240 ticks
+        elif (current_tick - self.last_event_time) >= randint(10, 50): # Trigger an event every ~240 ticks
             self.sources.create_random_source()
             self.last_event_time = current_tick
             self.events += 1
-

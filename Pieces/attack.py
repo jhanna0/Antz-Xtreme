@@ -26,13 +26,16 @@ class Projectile(Attack):
         super().__init__(location)
         self.board = board
         self.direction = direction.value
+        self.hits = 0
 
     def calculate_hits(self, npcs: NPCManager) -> List[Piece]:
-        return npcs.get_all_pieces_at_location(self.get_location())
+        hits = npcs.get_all_pieces_at_location(self.get_location())
+        self.hits += len(hits)
+        return hits
 
     # same method in player class -> could make a "movable" piece class. npc doesn't take this because we assume all their moves are valid
     def validate_next_turn(self) -> bool:
-        return self.board.validate_move(self._next_move())
+        return self.board.validate_move(self._next_move()) and self.hits == 0
 
     def next_turn(self) -> None:
         self.location = self._next_move()
@@ -51,7 +54,7 @@ class Ultimate(Attack):
         # broadcast.announce(f"{self.get_size()}, {self.get_footprint()}, {self.get_symbol()}")
 
     def calculate_hits(self, manager: Manager) -> List[Piece]:
-        return manager.get_pieces()
+        return list(manager.get_pieces())
 
     def validate_next_turn(self) -> bool:
         return ticks.get_tick_difference(self.start_tick) < self.duration
