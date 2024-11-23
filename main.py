@@ -45,21 +45,22 @@ class Game:
         self.machines.register(MoneyMachine(symbol = "$", location = self.generator.find_location_for_piece(edge_preference=True)))
         self.shops.register(Shop(piece_type = MinerRobot, location = self.generator.find_location_for_piece(edge_preference=True)))
 
-        Tutorial(self.player_icon).start()
+        # Tutorial(self.player_icon).start()
 
     def _update_board(self):
         # if adding new type of pieces, add here
         # can make a registration method too
-        self.all_objects = {
-            self.player_icon: [self.player],
-            **self.npcs.get_pieces(),
-            **self.sources.get_pieces(),
-            **self.machines.get_pieces(),
-            **self.shops.get_pieces(),
-        }
+        # determines render order
+        self.all_objects = [
+            *self.sources.get_pieces(),
+            *self.machines.get_pieces(),
+            *self.shops.get_pieces(),
+            self.player,
+            *self.npcs.get_pieces()
+        ]
 
         self.board.update_piece_position(self.all_objects)
-        self.display.update_display(self.player.inventory.get_items_symbols()) # can we avoid passing player's inventory?
+        self.display.update_display(self.player.inventory.get_items_symbols())
 
     def player_move(self, key):
         next_move = self.player.next_move(self.controller.move_list[key])

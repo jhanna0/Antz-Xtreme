@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, List
+from typing import Tuple, List
 from Pieces.piece import Piece
 from Game.broadcast import broadcast
 
@@ -20,12 +20,12 @@ class Board():
         """Returns (height/rows, width/columns)"""
         return (self.rows, self.cols)
     
-    def update_piece_position(self, pieces: Dict[str, List[Piece]]):
+    def update_piece_position(self, pieces: List[Piece]):
         self.clear_board()
-        for piece_list in pieces.values():
-            for piece in piece_list:
-                if self.can_place(piece.get_size(), piece.get_location()):
-                    self.place(piece)
+        for piece in pieces:
+            if self.can_place(piece.get_size(), piece.get_location()):
+                self.place(piece)
+
     
     # ok kind of working. a couple problems:
     # 1. we have to be on exact location to interact with the object

@@ -10,7 +10,7 @@ class SourceManager(Manager[Source]):
     def __init__(self, generator: Generator):
         super().__init__()
         self.generator = generator
-        self.potential_sources = (176, 223)
+        self.potential_sources = (97, 123)
 
     # need a class to handle "find best location"
     def create_random_source(self):
@@ -27,9 +27,9 @@ class SourceManager(Manager[Source]):
         broadcast.announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
 
     def update(self):
-        for source in self.get_pieces_list():
+        for source in self.get_pieces():
             source.grow()
 
     def get_best_source(self) -> Optional[Source]:
-        return max(self.get_pieces_list(), key = lambda source: source.get_quantity(), default = None)
+        return max(self.get_pieces(), key = lambda source: source.get_quantity(), default = None)
 
