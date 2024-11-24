@@ -15,7 +15,7 @@ class SourceManager(Manager[Source]):
     # need a class to handle "find best location"
     def create_random_source(self):
         symbol = chr(self.generator.choose_from_range(self.potential_sources))
-        location = self.generator.find_location_for_piece((2, 1))
+        location = self.generator.find_location_for_piece((1, 2)) # add source size to defintion
 
         rarity = self.generator.choose_rarity(source_rarity_weights)
         creation_rate = self.generator.choose_from_list(source_creation_rate[rarity])

@@ -8,11 +8,12 @@ class Generator():
     def __init__(self, board: Board):
         self.board = board
 
-    # we need to gracefully handle no position found
+    # we need to gracefully handle no position found !!! -> board just won't place it
     def find_location_for_piece(self, piece_size: Tuple[int, int] = (1, 1), edge_preference: bool = False) -> Tuple[int, int]:
         rows, cols = self.board.get_size()
         width, height = piece_size
 
+        # I don't like how this is the only non-deterministic method in the app
         if edge_preference:
             # Try to place near edges first
             for _ in range(50):  # Limit edge attempts

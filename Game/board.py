@@ -39,9 +39,9 @@ class Board():
     # 3. validate_move only checks the pieces central location as well
     # 4. we use piece_size and footprint interchangebly but they could be different
     def can_place(self, piece_size: Tuple[int, int], location: Tuple[int, int]) -> bool:
-        height, width = piece_size
-        for row_offset in range(height):
-            for col_offset in range(width):
+        rows, cols = piece_size
+        for row_offset in range(rows):
+            for col_offset in range(cols):
                 row, col = location[0] + row_offset, location[1] + col_offset
 
                 # Check if within board bounds
