@@ -1,7 +1,7 @@
 from Pieces.character import Character
 from Game.definitions import Direction
 from Pieces.shop import Shop
-from Pieces.piece import Piece # is this cyclical?
+from Pieces.piece import Piece
 from typing import Tuple, Optional
 from Game.broadcast import broadcast
 from Game.bank import bank
@@ -10,10 +10,12 @@ class Player(Character):
 
     def __init__(self, name: str = "You", location: Tuple[int, int] = (0,0), symbol: str = "~"):
         super().__init__(name, location, symbol)
+        self.last_direction = Direction.Right
     
     def next_move(self, direction: Direction) -> Tuple[int, int]:
         x = self.location[0] + direction.value[0]
         y = self.location[1] + direction.value[1]
+        self.last_direction = direction
         return (x, y)
 
     def validate_move(self, move: Tuple[int, int]) -> bool:
