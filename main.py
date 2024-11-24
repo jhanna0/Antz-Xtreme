@@ -22,7 +22,7 @@ from Game.controller import Controller
 from Game.tick import ticks
 from Game.tutorial import Tutorial
 from Game.definitions import Direction
-from Pieces.ability import Projectile, Ultimate, Teleport, Ring
+from Pieces.ability import Projectile, Ultimate, Teleport, Ring, Conjure
 
 
 class Game:
@@ -33,7 +33,7 @@ class Game:
         self.display = Display(self.board)
         self.move_list = {"w": Direction.Up, "a": Direction.Left, "s": Direction.Down, "d": Direction.Right}
         self.directional_ability_list = {"i": Direction.Up, "j": Direction.Left, "k": Direction.Down, "l": Direction.Right}
-        self.ultimate = ["q", "f"]
+        self.ultimate = ["q", "f", "v"]
         
         # Managers
         self.npcs = NPCManager()
@@ -50,7 +50,7 @@ class Game:
 
         # Register entities
         self.machines.register(MoneyMachine(symbol = "$", location = self.generator.find_location_for_piece(edge_preference=True)))
-        self.shops.register(Shop(piece_type = MinerRobot, location = self.generator.find_location_for_piece(edge_preference=True)))
+        # self.shops.register(Shop(piece_type = MinerRobot, location = self.generator.find_location_for_piece(edge_preference=True)))
 
         # Tutorial(self.player_icon).start()
 
@@ -92,9 +92,16 @@ class Game:
         
         elif key == "f":
             self.abilities.try_to_register(
-                Ring(
-                    player = self.player,
-                    affects = [self.npcs]
+                Teleport(
+                    target = self.player,
+                    board_size = self.board.get_size()
+                )
+            )
+        elif key == "v":
+            self.abilities.try_to_register(
+                Conjure(
+                    location = self.player.get_location(),
+                    npcs = self.npcs
                 )
             )
 

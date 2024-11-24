@@ -7,6 +7,8 @@ from Managers.manager import Manager
 from Game.broadcast import broadcast
 from Game.tick import ticks
 from Game.definitions import Direction
+from Managers.npc_manager import NPCManager
+from Pieces.robot import MinerRobot
 
 class Ability(Piece):
     def __init__(self, location: Tuple[int, int], affects: List[Manager], symbol: str = "*"):
@@ -27,15 +29,13 @@ class Projectile(Ability):
         self.direction = direction.value
         self.hits = 0
 
-    def take_action(self) -> List[Piece]:
-        all_hits: Set = set()
+    def take_action(self) -> None:
         for manager in self.affects:
             hits = manager.get_all_pieces_at_location(self.get_location())
             for piece in hits:
                 self.hits += len(hits)
                 manager.remove_piece(piece)
         self.location = self._next_move()
-        return all_hits
 
     # same method in player class -> could make a "movable" piece class. npc doesn't take this because we assume all their moves are valid
     def is_attack_finished(self) -> bool:
@@ -54,14 +54,11 @@ class Ultimate(Ability):
         self.duration = 5
         # broadcast.announce(f"{self.get_size()}, {self.get_footprint()}, {self.get_symbol()}")
 
-    def take_action(self) -> List[Piece]:
-        affected_pieces = []
+    def take_action(self) -> None:
         for manager in self.affects:
             all_pieces = manager.get_pieces()
-            affected_pieces.extend(all_pieces)
             for piece in all_pieces:
                 manager.remove_piece(piece)
-        return affected_pieces
 
     def is_attack_finished(self) -> bool:
         return ticks.get_tick_difference(self.start_tick) > self.duration
@@ -110,15 +107,13 @@ class Ring(Ability):
         self.duration = 20
         self.player = player
 
-    def take_action(self) -> List[Piece]:
+    def take_action(self) -> None:
         self._determine_location()
-        all_hits: Set = set()
         for manager in self.affects:
             for radius in self._determine_hits():
                 hits = manager.get_all_pieces_at_location(radius)
                 for piece in hits:
                     manager.remove_piece(piece)
-        return all_hits
 
     def is_attack_finished(self) -> bool:
         return ticks.get_tick_difference(self.start_tick) > self.duration
@@ -135,3 +130,17 @@ class Ring(Ability):
             for dw in range(width):
                 locations.append((row + dh, col + dw))
         return locations
+
+class Conjure(Ability):
+    def __init__(self, location: Tuple[int, int], npcs: NPCManager):
+        super().__init__(location = location, affects = [], symbol = ".")
+        self.duration = 4
+        self.npcs = npcs
+        self.start_tick = ticks.get_current_tick() # definitely make an Action class
+
+    def take_action(self) -> List[Piece]:
+        if self.is_attack_finished():
+            self.npcs.register(MinerRobot(name = "Spawn", location = self.location))
+
+    def is_attack_finished(self) -> bool:
+        return ticks.get_tick_difference(self.start_tick) > self.duration
