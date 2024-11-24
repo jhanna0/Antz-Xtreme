@@ -32,4 +32,3 @@ class SourceManager(Manager[Source]):
 
     def get_best_source(self) -> Optional[Source]:
         return max(self.get_pieces(), key = lambda source: source.get_quantity(), default = None)
-

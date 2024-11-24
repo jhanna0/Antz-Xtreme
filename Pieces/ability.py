@@ -17,10 +17,7 @@ class Ability(Piece):
     def take_action(self) -> None:
         raise NotImplementedError()
 
-    def validate_next_turn(self) -> bool:
-        raise NotImplementedError()
-    
-    def prepare_next_turn(self) -> None:
+    def is_attack_finished(self) -> bool:
         raise NotImplementedError()
 
 class Projectile(Ability):
@@ -37,14 +34,12 @@ class Projectile(Ability):
             for piece in hits:
                 self.hits += len(hits)
                 manager.remove_piece(piece)
+        self.location = self._next_move()
         return all_hits
 
     # same method in player class -> could make a "movable" piece class. npc doesn't take this because we assume all their moves are valid
-    def validate_next_turn(self) -> bool:
-        return self.board.validate_move(self._next_move()) and self.hits == 0
-
-    def prepare_next_turn(self) -> None:
-        self.location = self._next_move()
+    def is_attack_finished(self) -> bool:
+        return not self.board.validate_move(self._next_move()) or not self.hits == 0
 
     def _next_move(self) -> Tuple[int, int]:
         x = self.location[0] + self.direction[0]
@@ -59,7 +54,7 @@ class Ultimate(Ability):
         self.duration = 5
         # broadcast.announce(f"{self.get_size()}, {self.get_footprint()}, {self.get_symbol()}")
 
-    def calculate_impact(self) -> List[Piece]:
+    def take_action(self) -> List[Piece]:
         affected_pieces = []
         for manager in self.affects:
             all_pieces = manager.get_pieces()
@@ -68,29 +63,36 @@ class Ultimate(Ability):
                 manager.remove_piece(piece)
         return affected_pieces
 
-    def validate_next_turn(self) -> bool:
-        return ticks.get_tick_difference(self.start_tick) < self.duration
-
-    def prepare_next_turn(self) -> None:
-        pass
-
+    def is_attack_finished(self) -> bool:
+        return ticks.get_tick_difference(self.start_tick) > self.duration
+    
+# we could have this work on other Characters just need to add the properties
 class Teleport(Ability):
-    # we could have this work on NPCs as well, then add last_dest to NPC class
     def __init__(self, target: Player, board_size: Tuple[int, int]):
-        super().__init__(location = (0, 0), affects = [], symbol = "^")
+        super().__init__(location=(0, 0), affects=[], symbol="^")
         self.target = target
         self.board_size = board_size
-    
-    def take_action(self) -> List[Piece]:
-        self.target.set_location(self._calculate_destination())
+        self.duration = 2
+        self.start_tick = ticks.get_current_tick()
 
-    def validate_next_turn(self) -> bool:
-        return False
-    
+        self.start_location = self.target.get_location()
+        self.destination = self._calculate_destination()
+
+        self.set_location(self.destination)
+
+    def take_action(self) -> None:
+        """Teleport the target to the destination when the duration ends."""
+        if self.is_attack_finished():
+            self.target.set_location(self.destination)
+
+    def is_attack_finished(self) -> bool:
+        """Check if the teleport duration has elapsed."""
+        return ticks.get_tick_difference(self.start_tick) > self.duration
+
     def _calculate_destination(self) -> Tuple[int, int]:
         """Calculate the final destination based on direction and board size."""
         direction = self.target.last_direction
-        row, col = self.target.get_location()
+        row, col = self.start_location  # Use the locked starting location
         dr, dc = direction.value
         max_row, max_col = self.board_size
 

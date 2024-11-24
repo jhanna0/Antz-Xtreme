@@ -127,6 +127,7 @@ class Game:
         self.events.trigger_event(self.board.get_size())
         self._update_board()
 
+    # should we move to a true tick system where all actions have durations?
     def run(self):
         self.controller.start()
 

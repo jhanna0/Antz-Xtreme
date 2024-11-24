@@ -39,7 +39,7 @@ class TickManager:
     def get_current_tick(self) -> int:
         return self.current_tick
 
-    def get_tick_difference(self, tick: int):
+    def get_tick_difference(self, tick: int): # this is not really useful because most times we need to set tick to new tick
         return self.current_tick - tick
 
     def wait_until_next_tick(self) -> None:
