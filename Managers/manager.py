@@ -12,6 +12,9 @@ class Manager(Generic[T]):
 
     def register(self, piece: T) -> None:
         self.pieces.append(piece)
+    
+    def turn_sequence() -> None:
+        raise NotImplementedError()
 
     def get_pieces(self) -> List[T]:
         return list(self.pieces) # without list() this we were seeing weird behavior when removing from list in a loop

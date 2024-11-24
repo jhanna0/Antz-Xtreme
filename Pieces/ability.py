@@ -101,3 +101,37 @@ class Teleport(Ability):
         final_col = max(0, min(max_col - 1, col + dc * (max_col if dc != 0 else max_row)))
 
         return final_row, final_col
+
+class Ring(Ability):
+    def __init__(self, player: Player, affects: List[Manager]):
+        super().__init__(location = (0, 0), affects = affects)
+        self.set_size((3, 3))
+        self.start_tick = ticks.get_current_tick()
+        self.duration = 20
+        self.player = player
+
+    def take_action(self) -> List[Piece]:
+        self._determine_location()
+        all_hits: Set = set()
+        for manager in self.affects:
+            for radius in self._determine_hits():
+                hits = manager.get_all_pieces_at_location(radius)
+                for piece in hits:
+                    manager.remove_piece(piece)
+        return all_hits
+
+    def is_attack_finished(self) -> bool:
+        return ticks.get_tick_difference(self.start_tick) > self.duration
+
+    def _determine_location(self) -> None:
+        row, col = self.player.get_location()
+        self.set_location((row - 1, col - 1))
+    
+    def _determine_hits(self):
+        locations = []
+        height, width = self.get_size()
+        row, col = self.get_location()
+        for dh in range(height):
+            for dw in range(width):
+                locations.append((row + dh, col + dw))
+        return locations

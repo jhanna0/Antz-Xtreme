@@ -22,7 +22,7 @@ from Game.controller import Controller
 from Game.tick import ticks
 from Game.tutorial import Tutorial
 from Game.definitions import Direction
-from Pieces.ability import Projectile, Ultimate, Teleport
+from Pieces.ability import Projectile, Ultimate, Teleport, Ring
 
 
 class Game:
@@ -59,12 +59,12 @@ class Game:
         # can make a registration method too
         # determines render order (smaller index take priority)
         self.all_objects = [
+            *self.abilities.get_pieces(),
             self.player,
             *self.npcs.get_pieces(),
-            *self.abilities.get_pieces(),
             *self.sources.get_pieces(),
             *self.machines.get_pieces(),
-            *self.shops.get_pieces()
+            *self.shops.get_pieces(),
         ]
 
         self.board.update_piece_position(self.all_objects)
@@ -91,10 +91,12 @@ class Game:
             ))
         
         elif key == "f":
-            self.abilities.try_to_register(Teleport(
-                target = self.player,
-                board_size = self.board.get_size()
-            ))
+            self.abilities.try_to_register(
+                Ring(
+                    player = self.player,
+                    affects = [self.npcs]
+                )
+            )
 
     def _sub_tick_sequence(self):
         key = self.controller.process_latest_input()

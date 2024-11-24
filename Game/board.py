@@ -63,7 +63,11 @@ class Board():
         # broadcast.announce(f"{width} {height} {footprint} {location} {piece.get_type()} {self.get_size()}")
         for dy in range(height):
             for dx in range(width):
-                self.board[location[0] + dy][location[1] + dx] = footprint[dy][dx]
+                row = location[0] + dy
+                col = location[1] + dx
+
+                if (0 <= row < self.rows) and (0 <= col < self.cols):
+                    self.board[row][col] = footprint[dy][dx]
 
     # update this to check footprint
     def validate_move(self, move: Tuple[int, int]):
