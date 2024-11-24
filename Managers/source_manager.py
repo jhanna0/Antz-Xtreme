@@ -27,8 +27,14 @@ class SourceManager(Manager[Source]):
         broadcast.announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
 
     def update(self):
+        remove_sources: List[Source] = []
         for source in self.get_pieces():
+            if source.expired():
+                remove_sources.append(source)
             source.grow()
+        
+        for source in remove_sources:
+            self.remove_piece(source)
 
     def get_best_source(self) -> Optional[Source]:
         return max(self.get_pieces(), key = lambda source: source.get_quantity(), default = None)

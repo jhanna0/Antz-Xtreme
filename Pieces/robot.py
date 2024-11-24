@@ -46,10 +46,15 @@ class MinerRobot(NPC):
                 # could just switch to collect but switching to Idle seems safer for now
                 self.transition_state(NpcState.Idle)
 
-            # this is causing NPCs to leave immediately
-            # elif self.at_destination() and not self.inventory_full():
-            #     # Perform collection at destination
-            #     self.transition_state(NpcState.Idle)
+            elif self.at_destination():
+                source = sources.get_piece_at_location(self.get_location())
+                if source and source.is_depleted():
+                    # Perform collection at destination
+                    self.transition_state(NpcState.Idle)
+                
+                # source has expired
+                elif not source:
+                    self.transition_state(NpcState.Idle)
 
         elif self.state == NpcState.Sell:
             if self.at_destination() and not self.any_in_inventory():

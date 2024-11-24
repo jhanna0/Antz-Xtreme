@@ -15,6 +15,7 @@ class Source(Piece):
         self.worth = worth  # Value of the source items
         self.rarity = rarity
         self.item = Item(symbol, worth)
+        self.lifetime = 20
 
     def grow(self):
         game_tick = ticks.get_current_tick()
@@ -31,8 +32,12 @@ class Source(Piece):
     def take(self):
         if self.quantity > 0:
             self.quantity -= 1
+            self.lifetime -= 1
             return self.item
         return None
 
     def get_footprint(self) -> str:
         return f"{self.symbol}{superscript_mapping.get(self.quantity, self.quantity)}"
+    
+    def expired(self):
+        return self.lifetime <= 0
