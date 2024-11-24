@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from Pieces.source import Source
 from Game.broadcast import broadcast
@@ -36,5 +36,16 @@ class SourceManager(Manager[Source]):
         for source in remove_sources:
             self.remove_piece(source)
 
-    def get_best_source(self) -> Optional[Source]:
-        return max(self.get_pieces(), key = lambda source: source.get_quantity(), default = None)
+    def get_best_source(self, location: Tuple[int, int]) -> Optional[Source]:
+        """
+        Returns single source, first based off quantity + distance, then by just distance.
+        """
+        sources = self.get_pieces()
+        
+        # Attempt to find the closest non-depleted source
+        non_depleted_sources = [source for source in sources if not source.is_depleted()]
+        if non_depleted_sources:
+            return min(non_depleted_sources, key=lambda source: source.get_distance_from(location))
+
+        # Fallback to the closest source regardless of depletion
+        return min(sources, key=lambda source: source.get_distance_from(location), default=None)

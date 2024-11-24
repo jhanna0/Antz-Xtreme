@@ -30,7 +30,6 @@ class Game:
         # Viewports and Movement
         self.board = Board(10, 20)
         self.controller = Controller()
-        self.display = Display(self.board)
         self.move_list = {"w": Direction.Up, "a": Direction.Left, "s": Direction.Down, "d": Direction.Right}
         self.directional_ability_list = {"i": Direction.Up, "j": Direction.Left, "k": Direction.Down, "l": Direction.Right}
         self.ultimate = ["q", "f", "v"]
@@ -47,6 +46,9 @@ class Game:
         # Player
         self.player_icon = "~"
         self.player = Player(symbol = self.player_icon, location = self.generator.find_location_for_piece())
+
+        # Display after inventory
+        self.display = Display(self.board, self.player.inventory)
 
         # Register entities
         self.machines.register(MoneyMachine(symbol = "$", location = self.generator.find_location_for_piece(edge_preference=True)))
@@ -68,7 +70,7 @@ class Game:
         ]
 
         self.board.update_piece_position(self.all_objects)
-        self.display.update_display(self.player.inventory.get_items_symbols())
+        self.display.update_display()
 
     def player_move(self, key):
         if key in self.move_list:

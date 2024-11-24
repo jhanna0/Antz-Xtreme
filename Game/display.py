@@ -2,15 +2,17 @@ from Game.board import Board
 from typing import List
 from Game.broadcast import broadcast
 from Game.bank import bank
+from Inventory.inventory import Inventory
 
 class Display:
-    def __init__(self, board: Board):
+    def __init__(self, board: Board, inventory: Inventory):
         self.board = board
         self.messages: List[str] = []
         self.last_message = None  # Tracks the last unique message
         self.last_message_count = 0  # Tracks how many times the last message was repeated
         broadcast.subscribe(self)
         self.clear_screen()
+        self.inventory = inventory
 
     def add_message(self, msg: str):
         if self.last_message == msg:
@@ -28,16 +30,19 @@ class Display:
                 self.messages.pop(0)
 
         self.update_messages()
+    
+    def clear_messages(self):
+        self.messages = []
 
     def clear_screen(self):
         print("\033[H\033[J", end="")  # Move cursor to the top-left and clear the screen
 
-    def update_display(self, inventory: List[str]):
+    def update_display(self):
         # Entire display including board, player info, and messages
         self.clear_screen()
         rows, cols = self.board.get_size()
         money_string = bank.get_money_string()
-        inventory_string = "[" + ' '.join(inventory) + "]"
+        inventory_string = "[" + ' '.join(self.inventory.get_items_symbols()) + "]"
 
         spacing = (cols * 2) - (len(money_string) + len(inventory_string)) - 1
 

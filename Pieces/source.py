@@ -15,7 +15,7 @@ class Source(Piece):
         self.worth = worth  # Value of the source items
         self.rarity = rarity
         self.item = Item(symbol, worth)
-        self.lifetime = 20
+        self.lifetime = 10
 
     def grow(self):
         game_tick = ticks.get_current_tick()

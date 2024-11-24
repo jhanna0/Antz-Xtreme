@@ -29,7 +29,7 @@ class MinerRobot(NPC):
                 # Find and move to the best source
                 # multiple NPCs will now go after this source! -> another reason to move logic to NPC manager
                 # get best source only calculates quantity, not what the npc needs. need to figure out best source here i think
-                source = sources.get_best_source()
+                source = sources.get_best_source(self.get_location())
                 if source:
                     self.set_destination(source.get_location())
                     self.transition_state(NpcState.Collect)
