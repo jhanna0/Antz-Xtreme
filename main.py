@@ -1,12 +1,7 @@
-from typing import List
-
 # Objects
 from Game.board import Board
 from Game.events import Events
 from Pieces.player import Player
-from Pieces.robot import MinerRobot
-from Pieces.shop import Shop
-from Pieces.machine import MoneyMachine
 from Game.story import Story, AntzStory
 from Game.context import GameContext
 
@@ -23,9 +18,7 @@ from Game.display import Display
 from Game.broadcast import broadcast
 from Game.controller import Controller
 from Game.tick import ticks
-from Game.tutorial import Tutorial
 from Game.definitions import Direction
-from Pieces.ability import Projectile, Ultimate, Teleport, Ring, Conjure
 
 class Game:
     def __init__(self):
@@ -69,7 +62,7 @@ class Game:
             events = self.events
         )
 
-        self.story = AntzStory(self.context, self._register_keybinding)
+        self.story: Story = AntzStory(self.context, self._register_keybinding)
 
     def _update_board(self):
         self.context.update_all_objects()
@@ -79,12 +72,7 @@ class Game:
     def _register_default_keybindings(self):
         # default movement keys that should be used for every Game
         for key, direction in self.move_list.items():
-            self._register_keybinding(key, lambda direction = direction: self._move_player(direction))
-
-    def _move_player(self, direction: Direction):
-        next_move = self.player.next_move(direction)
-        if self.board.validate_move(next_move) and self.player.validate_move(next_move):
-            self.player.move(next_move)
+            self._register_keybinding(key, lambda direction = direction: self.player.move_player(self.board, direction))
 
     def _register_keybinding(self, key: str, action: callable):
         self.key_bindings[key] = action
@@ -96,30 +84,15 @@ class Game:
             action()
 
     def _sub_tick_sequence(self):
-        self.handle_input()
+        self.player.turn_sequence(self.sources, self.machines)
         self.abilities.turn_sequence()
+        self.handle_input()
         self._update_board()
 
-    # probably can make a player manager class but do we reallllly need to just to pass every object ever??
-    def player_turn_sequence(self):
-        source = self.sources.get_piece_at_location(self.player.get_location())
-        if source:
-            self.player.interact_with_source(source)
-
-        machine = self.machines.get_piece_at_location(self.player.get_location())
-        if machine:
-            self.player.interact_with_machine(machine)
-
-        shop = self.shops.get_piece_at_location(self.player.get_location())
-        if shop:
-            purchase = self.player.purchase_from_shop(shop)
-            if purchase:
-                self.npcs.register(purchase)
-
     def _full_tick_sequence(self):
-        self.sources.turn_sequence()
-        self.player_turn_sequence()
+        # potential to call all managers turn_sequence here, expect only need full/half tick...
         self.npcs.turn_sequence(self.sources, self.machines)
+        self.sources.turn_sequence()
         self.events.turn_sequence()
         self._update_board()
 

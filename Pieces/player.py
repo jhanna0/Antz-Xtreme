@@ -1,10 +1,11 @@
 from Pieces.character import Character
 from Game.definitions import Direction
-from Pieces.shop import Shop
-from Pieces.piece import Piece
-from typing import Tuple, Optional
+from typing import Tuple
 from Game.broadcast import broadcast
 from Game.bank import bank
+from Managers.machine_manager import MachineManager
+from Managers.source_manager import SourceManager
+from Game.board import Board
 
 class Player(Character):
 
@@ -27,18 +28,40 @@ class Player(Character):
 
     def move(self, move: Tuple[int, int]) -> None:
         self.location = move
+
+    def turn_sequence(self, sources: SourceManager, machines: MachineManager) -> None:
+        # we basically have this in NPC manager already... repeated logic, but might make sense to keep this in Player for now
+        # although, it might be better to have Player ignorant of whole game state and just worry about self
+        """
+        Handles the player's interactions and movement for this turn.
+        """
+        self._interact_with_source(sources)
+        self._interact_with_machine(machines)
+
+    def _interact_with_source(self, sources: SourceManager) -> None:
+        """
+        Handle interactions with sources at the player's location.
+        """
+        source = sources.get_piece_at_location(self.get_location())
+        if source:
+            self.interact_with_source(source)
+
+    def _interact_with_machine(self, machines: MachineManager) -> None:
+        """
+        Handle interactions with machines at the player's location.
+        """
+        machine = machines.get_piece_at_location(self.get_location())
+        if machine:
+            self.interact_with_machine(machine)
+
+    def move_player(self, board: Board, direction: Direction) -> None:
+        """
+        Move the player in the given direction, if the move is valid.
+        """
+        next_move = self.next_move(direction)
+        if board.validate_move(next_move) and self.validate_move(next_move):
+            self.move(next_move)
     
-    # this is janky and will probably be moved somewhere else, maybe shop manager
-    # probably don't need to pass ticks
-    def purchase_from_shop(self, shop: Shop) -> Optional[Piece]:
-        purchase = None
-        price = shop.get_price()
-        if bank.enough_money(price):
-            # added a cooldown to purchasing to avoid duplicate purchases
-            purchase = shop.purchase()
-            if purchase:
-                bank.remove_money(price)
-        else:
-            broadcast.announce(f"Not enough money! Price: ${price}")
-        
-        return purchase
+    def interact_with_shop(self):
+        # didn't use shops for anything yet!
+        pass
