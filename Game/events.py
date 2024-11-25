@@ -12,7 +12,7 @@ class Events():
 
         self.sources = sources
 
-    def trigger_event(self, board_size: Tuple[int, int]):
+    def turn_sequence(self):
         current_tick = ticks.get_current_tick()
 
         if current_tick > 20 and self.events == 0: # first event happens early

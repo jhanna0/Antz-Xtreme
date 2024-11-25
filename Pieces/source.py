@@ -29,6 +29,7 @@ class Source(Piece):
     def is_depleted(self):
         return self.quantity == 0
 
+    # BUG player can take if their inventory is full
     def take(self):
         if self.quantity > 0:
             self.quantity -= 1

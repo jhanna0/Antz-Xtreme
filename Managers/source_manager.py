@@ -26,7 +26,7 @@ class SourceManager(Manager[Source]):
         super().register(source)
         broadcast.announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
 
-    def update(self):
+    def turn_sequence(self):
         remove_sources: List[Source] = []
         for source in self.get_pieces():
             if source.expired():

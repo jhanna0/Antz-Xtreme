@@ -19,7 +19,7 @@ class AbilityManager(Manager[Ability]):
             self.register(ability)
             self.last_ability = current_tick
 
-    def update(self) -> None:
+    def turn_sequence(self) -> None:
         for ability in self.get_pieces():
             ability.take_action()
         self.resolve_used_abilities()
