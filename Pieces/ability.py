@@ -144,3 +144,39 @@ class Conjure(Ability):
 
     def is_attack_finished(self) -> bool:
         return ticks.get_tick_difference(self.start_tick) > self.duration
+
+
+    # def player_move(self, key):
+    #     if key in self.move_list:
+    #         next_move = self.player.next_move(self.move_list[key])
+    #         if self.board.validate_move(next_move) and self.player.validate_move(next_move):
+    #             self.player.move(next_move)
+        
+    #     elif key in self.directional_ability_list:
+    #         self.abilities.try_to_register(Projectile(
+    #             location = self.player.get_location(),
+    #             direction = self.directional_ability_list[key],
+    #             board = self.board,
+    #             affects = [self.npcs, self.sources])
+    #         )
+    
+    #     elif key == "q":
+    #         self.abilities.try_to_register(Ultimate(
+    #             size = self.board.get_size(),
+    #             affects = [self.npcs, self.sources]
+    #         ))
+        
+    #     elif key == "f":
+    #         self.abilities.try_to_register(
+    #             Teleport(
+    #                 target = self.player,
+    #                 board_size = self.board.get_size()
+    #             )
+    #         )
+    #     elif key == "v":
+    #         self.abilities.try_to_register(
+    #             Conjure(
+    #                 location = self.player.get_location(),
+    #                 npcs = self.npcs
+    #             )
+    #         )

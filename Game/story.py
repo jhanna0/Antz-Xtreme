@@ -6,22 +6,27 @@ from Pieces.ability import Teleport
 from Managers.ability_manager import AbilityManager
 from Pieces.player import Player
 from Game.board import Board
-from main import GameContext
+from Game.context import GameContext
+from Pieces.robot import MinerRobot
+from Pieces.shop import Shop
+from Pieces.machine import MoneyMachine
 
 class Chapter:
-    def __init__(self):
-        self.name: str = ''
-        self.objective: str = ''
+    def __init__(self, name: str, objective: str):
+        self.name: str = name
+        self.objective: str = objective
         self.started = False
         self.complete = False
 
-    def starting_action(self):
+    def starting_action(self) -> None:
+        self.started = True
+        broadcast.announce(self.name)
+        broadcast.announce(f"Objective: {self.objective}")
+
+    def completion_condition(self) -> bool:
         raise NotImplementedError()
 
-    def completion_condition(self):
-        raise NotImplementedError()
-
-    def completion_action(self):
+    def completion_action(self) -> None:
         raise NotImplementedError()
 
     def set_completed(self) -> None:
@@ -32,30 +37,18 @@ class Chapter:
 
 class Chapter1(Chapter):
     def __init__(self, inventory: Inventory):
-        self.name = "Chapter 1"
-        self.objective: str = "Fill your inventory with resources"
-        self.complete = False
-        self.started = False
+        super().__init__(name = "Chapter 1", objective = "Pick up single resource")
         self.inventory = inventory
 
-    def starting_action(self):
-        self.started = True
-        broadcast.announce("Chapter 1: Learning the Ropes")
-        broadcast.announce("Objective: ", self.objective)
+    def completion_condition(self) -> bool:
+        return len(self.inventory.get_items()) > 0
 
-    def completion_condition(self):
-        return self.inventory.is_inventory_full()
-
-    def completion_action(self):
-        if self.complete:
-            broadcast.announce("You completed Chapter 1!")
+    def completion_action(self) -> None:
+        broadcast.announce("You completed Chapter 1!")
 
 class Chapter2(Chapter):
     def __init__(self, context: GameContext, kb_str: str, callback: Callable):
-        self.name = "Chapter 2"
-        self.objective: str = "Collect $200"
-        self.complete = False
-        self.started = False
+        super().__init__(name = "Chapter 2", objective = "Fill your inventory")
         self.context = context
         self.kb_str = kb_str
         self.callback = callback
@@ -69,11 +62,6 @@ class Chapter2(Chapter):
             board_size=self.context.board.get_size()
         ))
 
-    def starting_action(self):
-        self.started = True
-        broadcast.announce("Chapter 2: Your first ability")
-        broadcast.announce(f"Objective: {self.objective}")
-
     def completion_condition(self):
         return self.context.player.inventory.is_inventory_full()
 
@@ -81,7 +69,7 @@ class Chapter2(Chapter):
         broadcast.announce(f"Completed")
         self.callback(self.kb_str, self._use_teleport)
         broadcast.announce("You've learned to teleport!")
-        broadcast.announce("Press 'f' to teleport in your last travel direction")
+        broadcast.announce("Press 'f' to teleport in your last travel direction.")
 
 class Story:
     """The "CD-ROM" for our Framework. Loads a game to be played."""
@@ -89,6 +77,10 @@ class Story:
         self.name = name
         self.chapters: List[Chapter] = []
         self.current_chapter_index = 0
+        self.won: bool = False
+    
+    def start(self):
+        broadcast.announce(self.name)
 
     def add_chapter(self, chapter: Chapter):
         self.chapters.append(chapter)
@@ -96,19 +88,59 @@ class Story:
     def win_condition(self) -> bool:
         return all(chapter.complete for chapter in self.chapters)
 
-    def progress(self):
+    def win(self):
+        if not self.won:  # Only execute win logic once
+            self.won = True
+            broadcast.announce("You win!!")
+
+    def play(self):
         if self.current_chapter_index < len(self.chapters):
             current_chapter = self.chapters[self.current_chapter_index]
-            
-            if not current_chapter.complete:
-                current_chapter.progress()
-            else:
+
+            if not current_chapter.started:
+                current_chapter.starting_action()
+
+            # Delegate state transitions to the chapter
+            if current_chapter.completion_condition():
+                current_chapter.set_completed()
+
+            # If the chapter is complete, move to the next one
+            if current_chapter.is_complete():
                 current_chapter.completion_action()
                 self.current_chapter_index += 1
 
-            if self.current_chapter_index < len(self.chapters):
-                next_chapter = self.chapters[self.current_chapter_index]
-                next_chapter.starting_action()
-        else:
-            print("Story complete!")
+class AntzStory(Story):
+    def __init__(self, context: GameContext, kb_func: callable):
+        super().__init__(name = "Antz Extreme")
+        self.context = context
+        self.chapters: List[Chapter] = []
+        self.current_chapter_index = 0
 
+        self.add_chapter(
+            Chapter1(
+                inventory = self.context.player.inventory
+            )
+        )
+        self.add_chapter(
+            Chapter2(
+                context = self.context,
+                kb_str = "f",
+                callback = kb_func
+            )
+        )
+    
+    def start(self):
+        super().start()
+        # Register entities
+        self.context.machines.register(
+            MoneyMachine(
+                symbol = "$",
+                location = self.context.generator.find_location_for_piece(edge_preference = True)
+            )
+        )
+        self.context.shops.register(
+            Shop(
+                piece_type = MinerRobot,
+                location = self.context.generator.find_location_for_piece(edge_preference=True)
+            )
+        )
