@@ -3,8 +3,6 @@ from Game.definitions import Direction
 from typing import Tuple
 from Game.broadcast import broadcast
 from Game.bank import bank
-from Managers.machine_manager import MachineManager
-from Managers.source_manager import SourceManager
 from Game.board import Board
 
 class Player(Character):

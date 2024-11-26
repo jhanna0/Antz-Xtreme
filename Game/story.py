@@ -1,11 +1,7 @@
 from typing import List, Callable
 from Game.broadcast import broadcast
 from Inventory.inventory import Inventory
-from Game.bank import Bank
 from Pieces.ability import Teleport
-from Managers.ability_manager import AbilityManager
-from Pieces.player import Player
-from Game.board import Board
 from Game.context import GameContext
 from Pieces.robot import MinerRobot
 from Pieces.shop import Shop
@@ -78,7 +74,7 @@ class Story:
         self.chapters: List[Chapter] = []
         self.current_chapter_index = 0
         self.won: bool = False
-    
+
     def start(self):
         broadcast.announce(self.name)
 
@@ -86,29 +82,44 @@ class Story:
         self.chapters.append(chapter)
 
     def win_condition(self) -> bool:
+        """
+        Checks if the win condition has been met for all chapters.
+        """
         return all(chapter.complete for chapter in self.chapters)
 
     def win(self):
-        if not self.won:  # Only execute win logic once
+        """
+        Handles winning the story. This will only run once.
+        """
+        if not self.won:
             self.won = True
             broadcast.announce("You win!!")
-    
+
     def every_turn(self):
-        raise NotImplementedError()
+        """
+        Override this method for custom logic to be executed every turn.
+        """
+        pass
 
     def play(self):
+        """
+        Updates the story's state. Manages chapter progression and win logic.
+        """
+        if self.win_condition():
+            self.win()
+            return  # If the game is won, stop further updates
+
         if self.current_chapter_index < len(self.chapters):
-            self.every_turn()
             current_chapter = self.chapters[self.current_chapter_index]
+
+            self.every_turn() # run these actions while playing
 
             if not current_chapter.started:
                 current_chapter.starting_action()
 
-            # Delegate state transitions to the chapter
             if current_chapter.completion_condition():
                 current_chapter.set_completed()
 
-            # If the chapter is complete, move to the next one
             if current_chapter.is_complete():
                 current_chapter.completion_action()
                 self.current_chapter_index += 1
@@ -150,5 +161,4 @@ class AntzStory(Story):
         )
     
     def every_turn(self):
-        self.context.events.create_random_source()
-
+        self.context.events.random_event()

@@ -33,12 +33,12 @@ class Game:
         # Core managers
         self.board = Board(10, 20)
         self.npcs = NPCManager()
-        self.generator = Generator(self.board)
-        self.sources = SourceManager(self.generator)
+        self.sources = SourceManager()
         self.machines = MachineManager()
         self.shops = ShopManager()
         self.abilities = AbilityManager(self.board)
-        self.events = Events(self.sources)
+        self.generator = Generator(self.board, self.sources) # could pass full context if needed
+        self.events = Events(self.generator)
 
         # Player
         self.player = Player(symbol="~", location=self.generator.find_location_for_piece())
@@ -64,8 +64,10 @@ class Game:
 
         self.story: Story = AntzStory(self.context, self.register_keybinding)
 
+    def register_keybinding(self, key: str, action: callable):
+        self.key_bindings[key] = action
+
     def _update_board(self):
-        self.context.update_all_objects()
         self.board.update_piece_position(self.context.get_all_objects())
         self.display.update_display()
 
@@ -74,22 +76,19 @@ class Game:
         for key, direction in self.move_list.items():
             self.register_keybinding(key, lambda direction = direction: self.player.move_player(self.board, direction))
 
-    def register_keybinding(self, key: str, action: callable):
-        self.key_bindings[key] = action
-
-    def handle_input(self):
+    def _handle_input(self):
         key = self.controller.process_latest_input()
         action = self.key_bindings.get(key)
         if action:
             action()
 
-    def turn_sequence(self):
+    def _turn_sequence(self):
         # potential to call all managers turn_sequence here, expect only need full/half tick...
         self.player.turn_sequence(self.sources, self.machines)
         self.abilities.turn_sequence()
         self.npcs.turn_sequence(self.sources, self.machines)
         self.sources.turn_sequence()
-        self.handle_input()
+        self._handle_input()
         self._update_board()
 
     # should we move to a true tick system where all actions have durations?
@@ -99,16 +98,12 @@ class Game:
 
         while self.controller.running:
             if ticks.check_game_loop_tick():
-                self.turn_sequence()
+                self._turn_sequence()
 
-            # Handle the story progression or win state
-            if not self.story.win_condition():
-                self.story.play()
-
-            else:
-                self.story.win() # this keeps getting called until we break
+            # Let the story handle all its logic in a single call
+            self.story.play()
 
             ticks.wait_until_next_tick()
-            
+
 game = Game()
 game.run()

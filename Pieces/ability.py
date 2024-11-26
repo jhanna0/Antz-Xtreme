@@ -10,6 +10,8 @@ from Game.definitions import Direction
 from Managers.npc_manager import NPCManager
 from Pieces.robot import MinerRobot
 
+# Abilities should maybe be a new Class, "Action"... they don't *really* need to exist on board, but a Piece
+# Right now is our visual (gets placed on board) Object
 class Ability(Piece):
     def __init__(self, location: Tuple[int, int], affects: List[Manager], symbol: str = "*"):
         super().__init__(location, symbol)

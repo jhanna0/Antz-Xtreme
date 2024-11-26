@@ -2,31 +2,18 @@ from typing import List, Optional, Tuple
 
 from Pieces.source import Source
 from Game.broadcast import broadcast
-from Game.generate import Generator
 from Managers.manager import Manager
-from Game.definitions import source_rarity_weights, source_creation_rate, source_worth_map
 
 class SourceManager(Manager[Source]):
-    def __init__(self, generator: Generator):
+    def __init__(self):
         super().__init__()
-        self.generator = generator
         self.potential_sources = (97, 123)
-
-    # need a class to handle "find best location"
-    def create_random_source(self):
-        symbol = chr(self.generator.choose_from_range(self.potential_sources))
-        location = self.generator.find_location_for_piece((1, 2)) # add source size to defintion
-
-        rarity = self.generator.choose_rarity(source_rarity_weights)
-        creation_rate = self.generator.choose_from_list(source_creation_rate[rarity])
-        worth = self.generator.choose_from_list(source_worth_map[rarity])
-        self.register(Source(symbol, location, creation_rate, worth, rarity))
     
-    def register(self, source: Source):
+    def register(self, source: Source) -> None:
         super().register(source)
-        broadcast.announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
+        # broadcast.announce(f"{source.rarity.value} Resource {source.get_symbol()} has spawned!")
 
-    def turn_sequence(self):
+    def turn_sequence(self) -> None:
         remove_sources: List[Source] = []
         for source in self.get_pieces():
             if source.expired():

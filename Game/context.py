@@ -44,7 +44,7 @@ class GameContext:
 
     # any new pieces that need rendering go here
     # could make a registration method
-    def update_all_objects(self) -> None:
+    def _update_all_objects(self) -> None:
         """
         The list of content displayed on the board.
         Determines render order (smaller index takes priority).
@@ -62,4 +62,5 @@ class GameContext:
         """
         Return the current list of all game objects. (Pass this to board to render each turn)
         """
+        self._update_all_objects()
         return self.all_objects

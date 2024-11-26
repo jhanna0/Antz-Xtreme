@@ -58,3 +58,10 @@ superscript_mapping = {
     8: chr(0x2078),  # ⁸
     9: chr(0x2079)   # ⁹
 }
+
+random_event_rate = {
+    Rarity.COMMON: (50, 100),      
+    Rarity.UNCOMMON: (100, 150),   
+    Rarity.RARE: (150, 200),     
+    Rarity.LEGENDARY: (200, 250)
+}
