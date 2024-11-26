@@ -1,15 +1,17 @@
 from typing import Tuple
 
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import MachineManager
 from Pieces.character import Character
 from Game.definitions import NpcState
+from Managers.source_manager import SourceManager
+from Managers.machine_manager import MachineManager
 
 class NPC(Character):
-    def __init__(self, name: str, location: Tuple[int, int], symbol: str):
-        super().__init__(name, location, symbol)
+    def __init__(self, sources: SourceManager, machines: MachineManager, name: str, location: Tuple[int, int], symbol: str):
+        super().__init__(name, location, symbol, sources, machines)
         self.destination: Tuple[int, int] = location
         self.state: NpcState = NpcState.Idle
+        self.sources = sources
+        self.machines = machines
 
     def move(self) -> None:
         """
@@ -26,12 +28,11 @@ class NPC(Character):
 
         self.location = (x, y)
 
-    def decide_next_action(self, sources: SourceManager, machines: MachineManager) -> None:
+    def decide_next_action(self) -> None:
         """
         Decides the NPC's next destination or action based on game state.
         """
-        # Placeholder decision logic
-        self.destination = (self.location[0] + 1, self.location[1])  # Example: Move to the right
+        raise NotImplementedError()
 
     def at_destination(self) -> bool:
         """

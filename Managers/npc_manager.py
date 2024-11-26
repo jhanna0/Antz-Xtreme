@@ -10,11 +10,11 @@ class NPCManager(Manager[NPC]):
     def __init__(self):
         super().__init__()
 
-    def turn_sequence(self, sources: SourceManager, machines: MachineManager) -> None:
+    def turn_sequence(self) -> None:
         """
         Executes the turn sequence for all NPCs, including interactions and movement.
         """
         for npc in self.get_pieces():
-            npc.turn_sequence(sources, machines)  # Interactions handled by Character
+            npc.turn_sequence()  # Interactions handled by Character
             if not npc.at_destination():
                 npc.move()

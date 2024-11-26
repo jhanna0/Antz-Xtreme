@@ -1,3 +1,5 @@
+from typing import List
+
 # Objects
 from Game.board import Board
 from Game.events import Events
@@ -6,6 +8,7 @@ from Game.story import Story, AntzStory
 from Game.context import GameContext
 
 # Managers
+from Managers.manager import Manager
 from Managers.machine_manager import MachineManager
 from Managers.npc_manager import NPCManager
 from Managers.shop_manager import ShopManager
@@ -41,7 +44,12 @@ class Game:
         self.events = Events(self.generator)
 
         # Player
-        self.player = Player(symbol="~", location=self.generator.find_location_for_piece())
+        self.player = Player(
+            symbol = "~",
+            location = self.generator.find_location_for_piece(),
+            sources = self.sources,
+            machines = self.machines
+        )
 
         # Display
         self.display = Display(self.board, self.player.inventory)
@@ -61,6 +69,14 @@ class Game:
             generator = self.generator,
             events = self.events
         )
+
+        # we can probably put Player actions in a Manager class to be more consistent
+        self.turn_entities: List[Manager | Player] = [
+            self.player,
+            self.abilities,
+            self.npcs,
+            self.sources
+        ]
 
         self.story: Story = AntzStory(self.context, self.register_keybinding)
 
@@ -83,11 +99,9 @@ class Game:
             action()
 
     def _turn_sequence(self):
-        # potential to call all managers turn_sequence here, expect only need full/half tick...
-        self.player.turn_sequence(self.sources, self.machines)
-        self.abilities.turn_sequence()
-        self.npcs.turn_sequence(self.sources, self.machines)
-        self.sources.turn_sequence()
+        for entity in self.turn_entities:
+            entity.turn_sequence()
+
         self._handle_input()
         self._update_board()
 

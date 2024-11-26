@@ -121,7 +121,7 @@ class Story:
                 current_chapter.set_completed()
 
             if current_chapter.is_complete():
-                current_chapter.completion_action()
+                current_chapter.completion_action() # clear display between chapters?
                 self.current_chapter_index += 1
 
 class AntzStory(Story):

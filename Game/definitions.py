@@ -46,6 +46,13 @@ source_creation_rate = {
     Rarity.LEGENDARY: (1, 10)
 }
 
+random_event_rate = {
+    Rarity.COMMON: (50, 100),      
+    Rarity.UNCOMMON: (100, 150),   
+    Rarity.RARE: (150, 200),     
+    Rarity.LEGENDARY: (200, 250)
+}
+
 superscript_mapping = {
     0: chr(0x2070),  # ⁰
     1: chr(0x00B9),  # ¹
@@ -59,9 +66,3 @@ superscript_mapping = {
     9: chr(0x2079)   # ⁹
 }
 
-random_event_rate = {
-    Rarity.COMMON: (50, 100),      
-    Rarity.UNCOMMON: (100, 150),   
-    Rarity.RARE: (150, 200),     
-    Rarity.LEGENDARY: (200, 250)
-}

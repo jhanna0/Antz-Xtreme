@@ -7,10 +7,12 @@ from Game.bank import bank
 from Game.broadcast import broadcast
 
 class Character(Piece):
-    def __init__(self, name: str, location: Tuple[int, int], symbol: str):
+    def __init__(self, name: str, location: Tuple[int, int], symbol: str, sources: SourceManager, machines: MachineManager):
         super().__init__(location, symbol)
         self.inventory = Inventory()
         self.name = name
+        self.sources = sources
+        self.machines = machines
 
     def move(self, destination: Tuple[int, int]) -> None:
         """
@@ -30,32 +32,38 @@ class Character(Piece):
     def inventory_full(self) -> bool:
         return self.inventory.is_inventory_full()
 
-    def interact_with_source(self, sources: SourceManager) -> None:
+    def interact_with_source(self) -> None:
         """
         Checks if there's a source at the character's location and interacts with it.
         """
         if self.inventory_full():
             return
         
-        source = sources.get_piece_at_location(self.location)
+        source = self.sources.get_piece_at_location(self.location)
         if source:
             item = source.take()
             if item:
                 self.add_to_inventory(item)
 
-    def interact_with_machine(self, machines: MachineManager) -> None:
+    def interact_with_machine(self) -> None:
         """
         Checks if there's a machine at the character's location and interacts with it.
         """
-        machine = machines.get_piece_at_location(self.location)
+        machine = self.machines.get_piece_at_location(self.location)
         if machine and self.any_in_inventory():
             item = self.get_inventory().pop()
             bank.add_money(machine.convert(item))
             broadcast.announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")
 
-    def turn_sequence(self, sources: SourceManager, machines: MachineManager) -> None:
+    def turn_sequence(self) -> None:
         """
         Handles the character's interactions with sources and machines during their turn.
         """
-        self.interact_with_source(sources)
-        self.interact_with_machine(machines)
+        self.interact_with_source()
+        self.interact_with_machine()
+    
+    def set_turn_dependencies(self) -> None:
+        """
+        Which entities do we interact with each turn?
+        """
+        raise NotImplementedError()
