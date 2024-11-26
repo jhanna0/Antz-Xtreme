@@ -83,14 +83,11 @@ class Game:
         if action:
             action()
 
-    def _sub_tick_sequence(self):
+    def _full_tick_sequence(self):
+        # potential to call all managers turn_sequence here, expect only need full/half tick...
         self.player.turn_sequence(self.sources, self.machines)
         self.abilities.turn_sequence()
         self.handle_input()
-        self._update_board()
-
-    def _full_tick_sequence(self):
-        # potential to call all managers turn_sequence here, expect only need full/half tick...
         self.npcs.turn_sequence(self.sources, self.machines)
         self.sources.turn_sequence()
         self.events.turn_sequence()
@@ -102,11 +99,7 @@ class Game:
         self.story.start()
 
         while self.controller.running:
-            sub_tick, tick = ticks.tick()
-            if sub_tick:
-                self._sub_tick_sequence()
-
-            if tick:
+            if ticks.check_game_loop_tick():
                 self._full_tick_sequence()
 
             # Handle the story progression or win state
