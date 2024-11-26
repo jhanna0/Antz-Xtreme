@@ -5,6 +5,8 @@ from Managers.source_manager import SourceManager
 from Managers.machine_manager import MachineManager
 from Game.bank import bank
 from Game.broadcast import broadcast
+from Game.definitions import Speed
+from Game.tick import ticks
 
 class Character(Piece):
     def __init__(self, name: str, location: Tuple[int, int], symbol: str, sources: SourceManager, machines: MachineManager):
@@ -13,6 +15,10 @@ class Character(Piece):
         self.name = name
         self.sources = sources
         self.machines = machines
+
+        # Probably a better way to do this.. just for abilities seem too specific. When action class is introduced can make a dict there
+        self.ability_cooldown = Speed.SLOW
+        self.last_ability_tick = 0
 
     def move(self, destination: Tuple[int, int]) -> None:
         """
@@ -62,8 +68,12 @@ class Character(Piece):
         self.interact_with_source()
         self.interact_with_machine()
     
-    def set_turn_dependencies(self) -> None:
-        """
-        Which entities do we interact with each turn?
-        """
-        raise NotImplementedError()
+    # Probably a better way to do this.. just for abilities seem too specific. When action class is introduced can make a dict there
+    def set_last_ability_tick(self):
+        self.last_ability_tick = ticks.get_current_tick()
+    
+    def can_use_ability(self) -> bool:
+        diff = ticks.get_tick_difference(self.last_ability_tick) >= self.ability_cooldown.value
+        if diff:
+            self.set_last_ability_tick()
+        return diff

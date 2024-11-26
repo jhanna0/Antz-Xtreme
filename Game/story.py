@@ -1,6 +1,5 @@
-from typing import List, Callable
+from typing import List, Callable, Optional
 from Game.broadcast import broadcast
-from Inventory.inventory import Inventory
 from Game.context import GameContext
 from Pieces.robot import MinerRobot
 from Pieces.shop import Shop
@@ -16,8 +15,6 @@ class Chapter:
 
     def starting_action(self) -> None:
         self.started = True
-        broadcast.announce(self.name)
-        broadcast.announce(f"Objective: {self.objective}")
 
     def completion_condition(self) -> bool:
         raise NotImplementedError()
@@ -30,10 +27,16 @@ class Chapter:
 
     def is_complete(self):
         return self.complete
+    
+    def get_objective(self) -> str:
+        return self.objective
+
+    def get_chapter_name(self) -> str:
+        return self.name
 
 class Chapter1(Chapter):
     def __init__(self, context: GameContext, kb_str: str, callback: Callable, factory: AbilityFactory):
-        super().__init__(name = "Chapter 1", objective = "Pick up single resource")
+        super().__init__(name = "Welcome to Antz Island", objective = "Pick up single resource")
         self.context = context
         self.kb_str = kb_str
         self.callback = callback
@@ -78,6 +81,24 @@ class Story:
 
     def add_chapter(self, chapter: Chapter):
         self.chapters.append(chapter)
+    
+    def get_story_name(self) -> str:
+        return self.name
+    
+    def get_chapter_name(self) -> str:
+        if self.won:
+            return "You Win!"
+
+        elif self.current_chapter_index < len(self.chapters):
+            return f"Chapter {self.current_chapter_index + 1}- {self.chapters[self.current_chapter_index].get_chapter_name()}"
+        
+        return ''
+
+    def get_objective_name(self) -> str:
+        if self.current_chapter_index < len(self.chapters):
+            return f"Objective- {self.chapters[self.current_chapter_index].get_objective()}"
+        
+        return 'Game Over'
 
     def win_condition(self) -> bool:
         """

@@ -23,7 +23,7 @@ class AbilityFactory(Factory):
                 target = self.context.player,
                 board_size = self.context.board.get_size()
             )
-            self.context.abilities.register(ability)
+            self.context.abilities.register(ability, self.context.player)
 
         return teleport_action
 
@@ -39,7 +39,7 @@ class AbilityFactory(Factory):
                 board = self.context.board,
                 affects = [self.context.npcs, self.context.sources]
             )
-            self.context.abilities.register(ability)
+            self.context.abilities.register(ability, self.context.player)
 
         return projectile_action
 
@@ -53,7 +53,7 @@ class AbilityFactory(Factory):
                 size = self.context.board.get_size(),
                 affects = [self.context.npcs, self.context.sources]
             )
-            self.context.abilities.register(ability)
+            self.context.abilities.register(ability, self.context.player)
 
         return ultimate_action
 
@@ -69,6 +69,6 @@ class AbilityFactory(Factory):
                 sources = self.context.sources,
                 machines = self.context.machines
             )
-            self.context.abilities.register(ability)
+            self.context.abilities.register(ability, self.context.player)
 
         return conjure_action

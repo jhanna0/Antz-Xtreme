@@ -15,6 +15,7 @@ def check_set_tick(func: Callable) -> Callable:
         return func(self, *args, **kwargs)
     return wrapper
 
+# give despawn time
 class NPC(Character):
     def __init__(self, sources: SourceManager, machines: MachineManager, name: str, location: Tuple[int, int], symbol: str):
         super().__init__(name, location, symbol, sources, machines)

@@ -11,7 +11,7 @@ from Pieces.robot import MinerRobot
 from Managers.source_manager import SourceManager
 from Managers.machine_manager import MachineManager
 
-# Abilities should maybe be a new Class, "Action"... they don't *really* need to exist on board, but a Piece
+# Abilities should maybe be a new Class, "Action"... they don't *really* need to exist on board, but..
 # Right now Piece is our visual (gets placed on board) Object
 # But having Enum Speed begs for all actions to have start_action method .. wait for Speed .. take_action method
 class Ability(Piece):

@@ -79,12 +79,15 @@ class Game:
         ]
 
         self.story: Story = AntzStory(self.context, self.register_keybinding)
+        self.display.set_story_name(self.story.get_story_name())
 
     def register_keybinding(self, key: str, action: callable):
         self.key_bindings[key] = action
 
     def _update_board(self):
         self.board.update_piece_position(self.context.get_all_objects())
+        self.display.set_chapter_name(self.story.get_chapter_name())
+        self.display.set_objective(self.story.get_objective_name())
         self.display.update_display()
 
     def _register_default_keybindings(self):
