@@ -96,6 +96,7 @@ class Game:
         key = self.controller.process_latest_input()
         action = self.key_bindings.get(key)
         if action:
+            broadcast.announce(str(action))
             action()
 
     def _turn_sequence(self):

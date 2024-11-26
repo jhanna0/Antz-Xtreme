@@ -13,10 +13,11 @@ class AbilityManager(Manager[Ability]):
         self.cool_down = 2 # how can we handle cooldowns by ability by character?
         self.last_ability = 0 # probably could go into Character class
     
-    def try_to_register(self, ability: Ability) -> None:
+    # a really bad solution to just having cooldowns in Abilities
+    def register(self, ability: Ability) -> None:
         current_tick = ticks.get_current_tick()
         if current_tick - self.last_ability >= self.cool_down:
-            self.register(ability)
+            super().register(ability)
             self.last_ability = current_tick
 
     def turn_sequence(self) -> None:

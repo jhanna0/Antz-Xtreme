@@ -1,11 +1,11 @@
 from typing import List, Callable
 from Game.broadcast import broadcast
 from Inventory.inventory import Inventory
-from Pieces.ability import Teleport
 from Game.context import GameContext
 from Pieces.robot import MinerRobot
 from Pieces.shop import Shop
 from Pieces.machine import MoneyMachine
+from Factory.factory import AbilityFactory
 
 class Chapter:
     def __init__(self, name: str, objective: str):
@@ -43,27 +43,19 @@ class Chapter1(Chapter):
         broadcast.announce("You completed Chapter 1!")
 
 class Chapter2(Chapter):
-    def __init__(self, context: GameContext, kb_str: str, callback: Callable):
+    def __init__(self, context: GameContext, kb_str: str, callback: Callable, factory: AbilityFactory):
         super().__init__(name = "Chapter 2", objective = "Fill your inventory")
         self.context = context
         self.kb_str = kb_str
         self.callback = callback
-
-    def _use_teleport(self):
-        """
-        Use the Teleport ability.
-        """
-        self.context.abilities.try_to_register(Teleport(
-            target=self.context.player,
-            board_size=self.context.board.get_size()
-        ))
+        self.factory = factory
 
     def completion_condition(self):
         return self.context.player.inventory.is_inventory_full()
 
     def completion_action(self):
         broadcast.announce(f"Completed")
-        self.callback(self.kb_str, self._use_teleport)
+        self.callback(self.kb_str, self.factory.player_teleport())
         broadcast.announce("You've learned to teleport!")
         broadcast.announce("Press 'f' to teleport in your last travel direction.")
 
@@ -130,6 +122,7 @@ class AntzStory(Story):
         self.context = context
         self.chapters: List[Chapter] = []
         self.current_chapter_index = 0
+        self.factory = AbilityFactory(self.context)
 
         self.add_chapter(
             Chapter1(
@@ -140,7 +133,8 @@ class AntzStory(Story):
             Chapter2(
                 context = self.context,
                 kb_str = "f",
-                callback = kb_func
+                callback = kb_func,
+                factory = self.factory
             )
         )
     
