@@ -32,15 +32,21 @@ class Chapter:
         return self.complete
 
 class Chapter1(Chapter):
-    def __init__(self, inventory: Inventory):
+    def __init__(self, context: GameContext, kb_str: str, callback: Callable, factory: AbilityFactory):
         super().__init__(name = "Chapter 1", objective = "Pick up single resource")
-        self.inventory = inventory
+        self.context = context
+        self.kb_str = kb_str
+        self.callback = callback
+        self.factory = factory
 
     def completion_condition(self) -> bool:
-        return len(self.inventory.get_items()) > 0
+        return len(self.context.player.inventory.get_items()) > 0
 
-    def completion_action(self) -> None:
-        broadcast.announce("You completed Chapter 1!")
+    def completion_action(self):
+        broadcast.announce(f"Completed")
+        self.callback(self.kb_str, self.factory.conjure_ability())
+        broadcast.announce("You've learned to conjure!")
+        broadcast.announce("Press 'v' to teleport in your last travel direction.")
 
 class Chapter2(Chapter):
     def __init__(self, context: GameContext, kb_str: str, callback: Callable, factory: AbilityFactory):
@@ -55,9 +61,9 @@ class Chapter2(Chapter):
 
     def completion_action(self):
         broadcast.announce(f"Completed")
-        self.callback(self.kb_str, self.factory.player_teleport())
-        broadcast.announce("You've learned to teleport!")
-        broadcast.announce("Press 'f' to teleport in your last travel direction.")
+        self.callback(self.kb_str, self.factory.conjure_ability())
+        broadcast.announce("You've learned to conjure!")
+        broadcast.announce("Press 'v' to teleport in your last travel direction.")
 
 class Story:
     """The "CD-ROM" for our Framework. Loads a game to be played."""
@@ -124,15 +130,15 @@ class AntzStory(Story):
         self.current_chapter_index = 0
         self.factory = AbilityFactory(self.context)
 
+        # self.add_chapter(
+        #     Chapter1(
+        #         inventory = self.context.player.inventory
+        #     )
+        # )
         self.add_chapter(
             Chapter1(
-                inventory = self.context.player.inventory
-            )
-        )
-        self.add_chapter(
-            Chapter2(
                 context = self.context,
-                kb_str = "f",
+                kb_str = "v",
                 callback = kb_func,
                 factory = self.factory
             )

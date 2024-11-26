@@ -11,12 +11,17 @@ class NpcState(Enum):
     Collect = "Collect"
     Sell = "Sell"
 
-# probably move into own rarity master class
 class Rarity(Enum):
     COMMON = "Common"
     UNCOMMON = "Uncommon"
     RARE = "Rare"
     LEGENDARY = "Legendary"
+
+class Speed(Enum):
+    LONG = 20
+    SLOW = 8
+    NORMAL = 4
+    INSTANT = 0
 
 class Direction(Enum):
     Up = (-1, 0)

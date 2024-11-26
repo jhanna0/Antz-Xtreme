@@ -1,17 +1,19 @@
 from typing import Tuple, List, Set
 from Pieces.piece import Piece
 from Pieces.player import Player
-from Game.definitions import Direction
 from Game.board import Board
 from Managers.manager import Manager
 from Game.broadcast import broadcast
 from Game.tick import ticks
-from Game.definitions import Direction
+from Game.definitions import Direction, Speed
 from Managers.npc_manager import NPCManager
 from Pieces.robot import MinerRobot
+from Managers.source_manager import SourceManager
+from Managers.machine_manager import MachineManager
 
 # Abilities should maybe be a new Class, "Action"... they don't *really* need to exist on board, but a Piece
-# Right now is our visual (gets placed on board) Object
+# Right now Piece is our visual (gets placed on board) Object
+# But having Enum Speed begs for all actions to have start_action method .. wait for Speed .. take_action method
 class Ability(Piece):
     def __init__(self, location: Tuple[int, int], affects: List[Manager], symbol: str = "*"):
         super().__init__(location, symbol)
@@ -71,7 +73,7 @@ class Teleport(Ability):
         super().__init__(location=(0, 0), affects=[], symbol="^")
         self.target = target
         self.board_size = board_size
-        self.duration = 2
+        self.duration = Speed.NORMAL.value
         self.start_tick = ticks.get_current_tick()
 
         self.start_location = self.target.get_location()
@@ -134,51 +136,29 @@ class Ring(Ability):
         return locations
 
 class Conjure(Ability):
-    def __init__(self, location: Tuple[int, int], npcs: NPCManager):
-        super().__init__(location = location, affects = [], symbol = ".")
-        self.duration = 4
+    def __init__(self,
+            location: Tuple[int, int],
+            npcs: NPCManager,
+            sources: SourceManager,
+            machines: MachineManager
+            ):
+        super().__init__(location = location,affects = [], symbol = ".")
+        self.duration = Speed.NORMAL.value
         self.npcs = npcs
+        self.sources = sources
+        self.machines = machines
         self.start_tick = ticks.get_current_tick() # definitely make an Action class
 
     def take_action(self) -> List[Piece]:
         if self.is_attack_finished():
-            self.npcs.register(MinerRobot(name = "Spawn", location = self.location))
+            self.npcs.register(
+                MinerRobot(
+                    name = "Spawn",
+                    location = self.location,
+                    sources = self.sources,
+                    machines = self.machines
+                )
+            )
 
     def is_attack_finished(self) -> bool:
         return ticks.get_tick_difference(self.start_tick) > self.duration
-
-
-    # def player_move(self, key):
-    #     if key in self.move_list:
-    #         next_move = self.player.next_move(self.move_list[key])
-    #         if self.board.validate_move(next_move) and self.player.validate_move(next_move):
-    #             self.player.move(next_move)
-        
-    #     elif key in self.directional_ability_list:
-    #         self.abilities.try_to_register(Projectile(
-    #             location = self.player.get_location(),
-    #             direction = self.directional_ability_list[key],
-    #             board = self.board,
-    #             affects = [self.npcs, self.sources])
-    #         )
-    
-    #     elif key == "q":
-    #         self.abilities.try_to_register(Ultimate(
-    #             size = self.board.get_size(),
-    #             affects = [self.npcs, self.sources]
-    #         ))
-        
-    #     elif key == "f":
-    #         self.abilities.try_to_register(
-    #             Teleport(
-    #                 target = self.player,
-    #                 board_size = self.board.get_size()
-    #             )
-    #         )
-    #     elif key == "v":
-    #         self.abilities.try_to_register(
-    #             Conjure(
-    #                 location = self.player.get_location(),
-    #                 npcs = self.npcs
-    #             )
-    #         )

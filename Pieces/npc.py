@@ -1,9 +1,19 @@
-from typing import Tuple
+from typing import Tuple, Callable
 
 from Pieces.character import Character
-from Game.definitions import NpcState
+from Game.definitions import NpcState, Speed
 from Managers.source_manager import SourceManager
 from Managers.machine_manager import MachineManager
+from Game.tick import ticks
+
+def check_set_tick(func: Callable) -> Callable:
+    """A pseudo way to make actions require X ticks to use. Should be moved into an Action base class."""
+    def wrapper(self, *args, **kwargs):
+        if ticks.get_tick_difference(self.start_tick) < self.speed:
+            return None
+        self.start_tick = ticks.get_current_tick()
+        return func(self, *args, **kwargs)
+    return wrapper
 
 class NPC(Character):
     def __init__(self, sources: SourceManager, machines: MachineManager, name: str, location: Tuple[int, int], symbol: str):
@@ -12,7 +22,10 @@ class NPC(Character):
         self.state: NpcState = NpcState.Idle
         self.sources = sources
         self.machines = machines
+        self.speed = Speed.NORMAL.value
+        self.start_tick = ticks.get_current_tick()
 
+    @check_set_tick
     def move(self) -> None:
         """
         Moves the NPC one step closer to its destination.
