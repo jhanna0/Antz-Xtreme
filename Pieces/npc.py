@@ -1,47 +1,46 @@
 from typing import Tuple
 
+from Managers.source_manager import SourceManager
+from Managers.machine_manager import MachineManager
 from Pieces.character import Character
 from Game.definitions import NpcState
 
 class NPC(Character):
     def __init__(self, name: str, location: Tuple[int, int], symbol: str):
         super().__init__(name, location, symbol)
-        self.destination: Tuple[int, int] = (0, 0)
+        self.destination: Tuple[int, int] = location
         self.state: NpcState = NpcState.Idle
 
     def move(self) -> None:
-        # move NPC one step
-        x, y = self.get_location()
+        """
+        Moves the NPC one step closer to its destination.
+        """
+        x, y = self.location
         dest_x, dest_y = self.destination
 
-        dx = dest_x - x
-        dy = dest_y - y
-
-        # Vertical then horizontal
-        if dx != 0:
-            x += 1 if dx > 0 else -1
-        elif dy != 0:
-            y += 1 if dy > 0 else -1
+        # Vertical then horizontal movement
+        if x != dest_x:
+            x += 1 if dest_x > x else -1
+        elif y != dest_y:
+            y += 1 if dest_y > y else -1
 
         self.location = (x, y)
-    
-    def decide_next_action(self):
-        raise NotImplementedError(f"{self.__class__.__name__} has not implemented decide_next_action")
 
-    def get_destination(self) -> Tuple[int, int]:
-        return self.destination
-
-    def set_destination(self, destination: Tuple[int, int]) -> None:
-        self.destination = destination
+    def decide_next_action(self, sources: SourceManager, machines: MachineManager) -> None:
+        """
+        Decides the NPC's next destination or action based on game state.
+        """
+        # Placeholder decision logic
+        self.destination = (self.location[0] + 1, self.location[1])  # Example: Move to the right
 
     def at_destination(self) -> bool:
-        return self.destination == self.location
+        """
+        Checks if the NPC has reached its destination.
+        """
+        return self.location == self.destination
 
-    def transition_state(self, state: NpcState) -> None:
-        # can add broadcast here
-        self._set_state(state)
-
-    def _set_state(self, state: NpcState) -> None:
-        self.state = state
-
-
+    def set_destination(self, destination: Tuple[int, int]) -> None:
+        """
+        Sets the NPC's next destination.
+        """
+        self.destination = destination

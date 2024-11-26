@@ -92,9 +92,13 @@ class Story:
         if not self.won:  # Only execute win logic once
             self.won = True
             broadcast.announce("You win!!")
+    
+    def every_turn(self):
+        raise NotImplementedError()
 
     def play(self):
         if self.current_chapter_index < len(self.chapters):
+            self.every_turn()
             current_chapter = self.chapters[self.current_chapter_index]
 
             if not current_chapter.started:
@@ -144,3 +148,7 @@ class AntzStory(Story):
                 location = self.context.generator.find_location_for_piece(edge_preference=True)
             )
         )
+    
+    def every_turn(self):
+        self.context.events.create_random_source()
+

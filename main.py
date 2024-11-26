@@ -62,7 +62,7 @@ class Game:
             events = self.events
         )
 
-        self.story: Story = AntzStory(self.context, self._register_keybinding)
+        self.story: Story = AntzStory(self.context, self.register_keybinding)
 
     def _update_board(self):
         self.context.update_all_objects()
@@ -72,9 +72,9 @@ class Game:
     def _register_default_keybindings(self):
         # default movement keys that should be used for every Game
         for key, direction in self.move_list.items():
-            self._register_keybinding(key, lambda direction = direction: self.player.move_player(self.board, direction))
+            self.register_keybinding(key, lambda direction = direction: self.player.move_player(self.board, direction))
 
-    def _register_keybinding(self, key: str, action: callable):
+    def register_keybinding(self, key: str, action: callable):
         self.key_bindings[key] = action
 
     def handle_input(self):
@@ -83,14 +83,13 @@ class Game:
         if action:
             action()
 
-    def _full_tick_sequence(self):
+    def turn_sequence(self):
         # potential to call all managers turn_sequence here, expect only need full/half tick...
         self.player.turn_sequence(self.sources, self.machines)
         self.abilities.turn_sequence()
-        self.handle_input()
         self.npcs.turn_sequence(self.sources, self.machines)
         self.sources.turn_sequence()
-        self.events.turn_sequence()
+        self.handle_input()
         self._update_board()
 
     # should we move to a true tick system where all actions have durations?
@@ -100,7 +99,7 @@ class Game:
 
         while self.controller.running:
             if ticks.check_game_loop_tick():
-                self._full_tick_sequence()
+                self.turn_sequence()
 
             # Handle the story progression or win state
             if not self.story.win_condition():

@@ -4,27 +4,17 @@ from Managers.source_manager import SourceManager
 from Managers.machine_manager import MachineManager
 
 class NPCManager(Manager[NPC]):
+    """
+        Simple manager to organize NPCs
+    """
     def __init__(self):
         super().__init__()
-    
-    def turn_sequence(self, sources: SourceManager, machines: MachineManager):
-        self._handle_source_interactions(sources)
-        self._handle_machine_interactions(machines)
-        self._move_and_set_destinations(sources, machines)
 
-    def _handle_source_interactions(self, sources: SourceManager):
+    def turn_sequence(self, sources: SourceManager, machines: MachineManager) -> None:
+        """
+        Executes the turn sequence for all NPCs, including interactions and movement.
+        """
         for npc in self.get_pieces():
-            source = sources.get_piece_at_location(npc.get_location())
-            if source:
-                npc.interact_with_source(source)
-
-    def _handle_machine_interactions(self, machines: MachineManager):
-        for npc in self.get_pieces():
-            machine = machines.get_piece_at_location(npc.get_location())
-            if machine:
-                npc.interact_with_machine(machine)
-
-    def _move_and_set_destinations(self, sources: SourceManager, machines: MachineManager):
-        for npc in self.get_pieces():
-            npc.decide_next_action(sources, machines)  # Delegate fully to the NPC.. for now
-            npc.move()
+            npc.turn_sequence(sources, machines)  # Interactions handled by Character
+            if not npc.at_destination():
+                npc.move()
