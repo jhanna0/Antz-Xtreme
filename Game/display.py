@@ -7,35 +7,31 @@ from Inventory.inventory import Inventory
 class Display:
     def __init__(self, board: Board, inventory: Inventory):
         self.board = board
+        self.inventory = inventory
         self.messages: List[str] = []
         self.last_message = None  # Tracks the last unique message
         self.last_message_count = 0  # Tracks how many times the last message was repeated
         self.story_name = ""  # Story name to display
         self.objective = ""  # Objective to display
-        self.chapter_name = ""
+        self.chapter_name = ""  # Chapter name to display
+        self.starting_row = 1  # Tracks the row where the content starts
         broadcast.subscribe(self)
         self.clear_screen()
-        self.inventory = inventory
 
     def set_story_name(self, name: str):
-        """
-        Sets the story name to be displayed.
-        """
+        """Sets the story name to be displayed."""
         self.story_name = name
 
     def set_chapter_name(self, name: str):
-        """
-        Sets the story name to be displayed.
-        """
+        """Sets the chapter name to be displayed."""
         self.chapter_name = name
 
     def set_objective(self, objective: str):
-        """
-        Sets the objective to be displayed.
-        """
+        """Sets the objective to be displayed."""
         self.objective = objective
 
     def add_message(self, msg: str):
+        """Adds a message to the message log, consolidating repeated messages."""
         if self.last_message == msg:
             # Increment the count for the last message
             self.last_message_count += 1
@@ -53,13 +49,15 @@ class Display:
         self.update_messages()
 
     def clear_messages(self):
+        """Clears the message log."""
         self.messages = []
 
     def clear_screen(self):
+        """Clears the terminal screen."""
         print("\033[H\033[J", end="")  # Move cursor to the top-left and clear the screen
 
     def update_display(self):
-        # Clear the screen and display the entire interface
+        """Updates the display with the current game state, dynamically positioning elements."""
         self.clear_screen()
         rows, cols = self.board.get_size()
         money_string = bank.get_money_string()
@@ -67,24 +65,39 @@ class Display:
 
         spacing = (cols * 2) - (len(money_string) + len(inventory_string)) - 1
 
-        # Story name and objective
-        print(f"\033[1;1H{self.story_name:<{cols * 2}}")
-        print(f"\033[2;1H{self.chapter_name:<{cols * 2}}")
-        print(f"\033[3;1H{self.objective:<{cols * 2}}")
+        current_row = self.starting_row
+
+        # Story name and details
+        current_row = self._print_section(current_row, self.story_name)
+        current_row = self._print_section(current_row, self.chapter_name)
+        current_row = self._print_section(current_row, self.objective)
 
         # Game board
-        for i, row in enumerate(self.board.get_board()):
-            print(f"\033[{i + 5};1H", end="")  # Move to the specific row (offset by 2)
+        for row in self.board.get_board():
+            print(f"\033[{current_row};1H", end="")
             print(' '.join([str(x) for x in row]))
+            current_row += 1
 
         # Player info
-        print(f"\033[{rows + 4};1H", end="")  # Move to the row below the board
+        print(f"\033[{current_row};1H", end="")
         print(f"{money_string}{' ' * spacing}{inventory_string}")
+        current_row += 2  # Space below player info
 
-        self.update_messages()
+        # Messages
+        self.update_messages(current_row)
 
-    def update_messages(self):
+    def update_messages(self, starting_row: int = None):
+        """Updates the message section starting at the specified row."""
         rows, cols = self.board.get_size()
+        if starting_row is None:
+            starting_row = self.starting_row  # Use default starting row
         for i, message in enumerate(self.messages):
-            print(f"\033[{rows + 6 + i};1H", end="")  # Reserve rows for messages
+            print(f"\033[{starting_row + i};1H", end="")
             print(f"{message:<80}")  # Clear any leftover text by padding with spaces
+
+    def _print_section(self, start_row: int, content: str) -> int:
+        """Helper to print a single line of content and return the next row index."""
+        if content:
+            print(f"\033[{start_row};1H{content}")
+            return start_row + 1
+        return start_row

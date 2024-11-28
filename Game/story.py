@@ -34,22 +34,36 @@ class Chapter:
     def get_chapter_name(self) -> str:
         return self.name
 
+class Tutorial(Chapter):
+    def __init__(self, context: GameContext):
+        super().__init__(name = "Welcome to Antz Island", objective = "Move Around")
+        self.context = context
+        broadcast.announce("Use WASD to move around")
+        self.starting_location = self.context.player.get_location()
+
+    def completion_condition(self) -> bool:
+        return self.context.player.get_location() != self.starting_location
+
+    def completion_action(self):
+        pass
+
 class Chapter1(Chapter):
     def __init__(self, context: GameContext, kb_str: str, callback: Callable, factory: AbilityFactory):
-        super().__init__(name = "Welcome to Antz Island", objective = "Pick up single resource")
+        super().__init__(name = "Natural Resources", objective = "Pick up single resource")
         self.context = context
         self.kb_str = kb_str
         self.callback = callback
         self.factory = factory
+        broadcast.announce("Resources provide Value that grows the Queen")
 
     def completion_condition(self) -> bool:
         return len(self.context.player.inventory.get_items()) > 0
 
     def completion_action(self):
         broadcast.announce(f"Completed")
-        self.callback(self.kb_str, self.factory.conjure_ability())
-        broadcast.announce("You've learned to conjure!")
-        broadcast.announce("Press 'v' to teleport in your last travel direction.")
+        self.callback(self.kb_str, self.factory.player_teleport())
+        broadcast.announce("You've learned to teleport!")
+        broadcast.announce("Press 'v' to teleport in the direction you're heading.")
 
 class Chapter2(Chapter):
     def __init__(self, context: GameContext, kb_str: str, callback: Callable, factory: AbilityFactory):
@@ -77,7 +91,8 @@ class Story:
         self.won: bool = False
 
     def start(self):
-        broadcast.announce(self.name)
+        # broadcast.announce(self.name)
+        pass
 
     def add_chapter(self, chapter: Chapter):
         self.chapters.append(chapter)
@@ -151,11 +166,11 @@ class AntzStory(Story):
         self.current_chapter_index = 0
         self.factory = AbilityFactory(self.context)
 
-        # self.add_chapter(
-        #     Chapter1(
-        #         inventory = self.context.player.inventory
-        #     )
-        # )
+        self.add_chapter(
+            Tutorial(
+                context = self.context
+            )
+        )
         self.add_chapter(
             Chapter1(
                 context = self.context,

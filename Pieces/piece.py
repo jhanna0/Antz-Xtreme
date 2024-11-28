@@ -1,10 +1,12 @@
 from typing import Tuple
+from uuid import uuid4
 
 class Piece():
     def __init__(self, location: Tuple[int, int] = (0, 0), symbol: str = "*", size: Tuple[int, int] = (1, 1)):
         self.location = location
         self.symbol = symbol
         self.size = size
+        self.id = uuid4()
     
     def set_location(self, location: Tuple[int, int]) -> None:
         self.location = location
@@ -34,3 +36,7 @@ class Piece():
 
     def get_type(self) -> str:
         return self.__class__.__name__
+    
+    def get_id(self):
+        return self.id
+
