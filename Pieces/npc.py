@@ -1,10 +1,11 @@
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Optional, TYPE_CHECKING
 
 from Pieces.character import Character
 from Game.definitions import NpcState, Speed
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import MachineManager
 from Game.tick import ticks
+
+if TYPE_CHECKING:
+    from Game.context import GameContext
 
 def check_set_tick(func: Callable) -> Callable:
     """A pseudo way to make actions require X ticks to use. Should be moved into an Action base class."""
@@ -17,12 +18,15 @@ def check_set_tick(func: Callable) -> Callable:
 
 # give despawn time
 class NPC(Character):
-    def __init__(self, sources: SourceManager, machines: MachineManager, name: str, location: Tuple[int, int], symbol: str):
-        super().__init__(name, location, symbol, sources, machines)
+    def __init__(self, context: 'GameContext', name: str, location: Tuple[int, int], symbol: str):
+        super().__init__(name, location, symbol)
+        self.context = context
         self.destination: Tuple[int, int] = location
         self.state: NpcState = NpcState.Idle
-        self.sources = sources
-        self.machines = machines
+        
+        # Resolve dependencies via context
+        # Dependencies are now resolved dynamically via self.context
+        
         self.speed = Speed.NORMAL.value
         self.start_tick = ticks.get_current_tick()
 
@@ -41,6 +45,11 @@ class NPC(Character):
             y += 1 if dest_y > y else -1
 
         self.location = (x, y)
+
+    def update(self) -> None:
+        super().update() # Character.update() (interactions)
+        self.decide_next_action()
+        self.move()
 
     def decide_next_action(self) -> None:
         """

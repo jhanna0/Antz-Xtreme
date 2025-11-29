@@ -1,12 +1,16 @@
 from Pieces.piece import Piece
-from typing import Tuple, Type, Optional
+from typing import Tuple, Type, Optional, TYPE_CHECKING
 from Game.tick import ticks
 from Game.broadcast import broadcast
 
+if TYPE_CHECKING:
+    from Game.context import GameContext
+
 # at the moment shop will only sell Pieces, but, we should also have Item Shop
 class Shop(Piece):
-    def __init__(self, piece_type: Type[Piece], location: Tuple[int, int] = (9, 19), symbol: str = "!"):
+    def __init__(self, context: 'GameContext', piece_type: Type[Piece], location: Tuple[int, int] = (9, 19), symbol: str = "!"):
         super().__init__(location, symbol)
+        self.context = context
         self.purchases = 0
         self.base_price = 5
 
@@ -30,7 +34,17 @@ class Shop(Piece):
             self.purchases += 1
 
             # these are not type safe at the moment.. improve later
-            item = self.item_type(f"QT-{self.purchases}")
+            # Pass context if the type constructor expects it (like NPC/Robot)
+            try:
+                item = self.item_type(
+                    context=self.context,
+                    name=f"QT-{self.purchases}",
+                    location=self.location # Shop location? Or player location?
+                )
+                # Usually NPCs need a location. If item_type doesn't support this, we need a factory or protocol.
+            except TypeError:
+                # Fallback for items that don't need context (if any)
+                 item = self.item_type(f"QT-{self.purchases}")
 
             broadcast.announce(f"A {item.get_type()}, {item.name}, joins your team!")
             return item

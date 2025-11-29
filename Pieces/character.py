@@ -1,20 +1,21 @@
 from typing import Tuple, List
 from Inventory.inventory import Inventory, Item
 from Pieces.piece import Piece
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import MachineManager
 from Game.bank import bank
 from Game.broadcast import broadcast
-from Game.definitions import Speed
+from Game.definitions import Speed, SignalType
 from Game.tick import ticks
+from Game.signals import signals
 
 class Character(Piece):
-    def __init__(self, name: str, location: Tuple[int, int], symbol: str, sources: SourceManager, machines: MachineManager):
+    def __init__(self, name: str, location: Tuple[int, int], symbol: str):
         super().__init__(location, symbol)
         self.inventory = Inventory()
         self.name = name
-        self.sources = sources
-        self.machines = machines
+        
+        # Subscribe to interaction signals
+        signals.subscribe(SignalType.INTERACT_WITH_SOURCE, self._handle_source_interaction)
+        signals.subscribe(SignalType.INTERACT_WITH_MACHINE, self._handle_machine_interaction)
 
         # Probably a better way to do this.. just for abilities seem too specific. When action class is introduced can make a dict there
         self.ability_cooldown = Speed.SLOW
@@ -38,35 +39,41 @@ class Character(Piece):
     def inventory_full(self) -> bool:
         return self.inventory.is_inventory_full()
 
-    def interact_with_source(self) -> None:
+    def _handle_source_interaction(self, signal):
         """
-        Checks if there's a source at the character's location and interacts with it.
+        Callback for when a source is found at the character's location.
         """
+        if signal.data.get("target") != self:
+            return
+            
         if self.inventory_full():
             return
         
-        source = self.sources.get_piece_at_location(self.location)
+        source = signal.data.get("source")
         if source:
             item = source.take()
             if item:
                 self.add_to_inventory(item)
 
-    def interact_with_machine(self) -> None:
+    def _handle_machine_interaction(self, signal):
         """
-        Checks if there's a machine at the character's location and interacts with it.
+        Callback for when a machine is found at the character's location.
         """
-        machine = self.machines.get_piece_at_location(self.location)
+        if signal.data.get("target") != self:
+            return
+
+        machine = signal.data.get("machine")
         if machine and self.any_in_inventory():
             item = self.get_inventory().pop()
             bank.add_money(machine.convert(item))
             broadcast.announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")
 
-    def turn_sequence(self) -> None:
+    def update(self) -> None:
         """
         Handles the character's interactions with sources and machines during their turn.
         """
-        self.interact_with_source()
-        self.interact_with_machine()
+        # Emit query for interactions at current location
+        signals.emit(SignalType.INTERACTION_QUERY, {"piece": self, "location": self.location})
     
     # Probably a better way to do this.. just for abilities seem too specific. When action class is introduced can make a dict there
     def set_last_ability_tick(self):

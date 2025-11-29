@@ -1,25 +1,26 @@
-from typing import Set, Tuple
+from typing import Set, Tuple, TYPE_CHECKING
 
 from Pieces.npc import NPC
+from Pieces.source import Source
+from Pieces.machine import Machine
 from Game.definitions import NpcState
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import MachineManager
+
+if TYPE_CHECKING:
+    from Game.context import GameContext
 
 # pass location in future from NPCManager
 class MinerRobot(NPC):
     def __init__(self,
+            context: 'GameContext',
             name: str,
             location: Tuple[int, int],
-            sources: SourceManager,
-            machines: MachineManager,
             symbol: str = "~"):
         
         super().__init__(
+            context = context,
             name = name,
             location = location,
-            symbol = symbol,
-            sources = sources,
-            machines = machines
+            symbol = symbol
             )
         self.inventory_types: Set[str] = set()
 
@@ -38,16 +39,22 @@ class MinerRobot(NPC):
             # we need to check if NPC is at destination !!
             if not self.inventory_full():
                 # Find and move to the best source
-                # multiple NPCs will now go after this source! -> another reason to move logic to NPC manager
-                # get best source only calculates quantity, not what the npc needs. need to figure out best source here i think
-                source = self.sources.get_best_source(self.get_location())
-                if source:
+                sources = self.context.get_entities(Source)
+                
+                # Prioritize non-depleted sources
+                candidates = [s for s in sources if not s.is_depleted()]
+                if not candidates:
+                    candidates = sources
+                
+                if candidates:
+                    # Find closest
+                    source = min(candidates, key=lambda s: s.get_distance_from(self.get_location()))
                     self.set_destination(source.get_location())
                     self.transition_state(NpcState.Collect)
 
             elif self.inventory_full():
                 # Move to the nearest machine to sell inventory
-                machine = self.machines.get_nearest_piece(self.get_location())
+                machine = self.context.entity_manager.get_nearest_piece(self.get_location(), Machine)
                 if machine:
                     self.set_destination(machine.get_location())
                     self.transition_state(NpcState.Sell)
@@ -58,7 +65,10 @@ class MinerRobot(NPC):
                 self.transition_state(NpcState.Idle)
 
             elif self.at_destination():
-                source = self.sources.get_piece_at_location(self.get_location())
+                # Find Source at current location
+                pieces = self.context.entity_manager.get_all_pieces_at_location(self.get_location())
+                source = next((p for p in pieces if isinstance(p, Source)), None)
+                
                 if source and source.is_depleted():
                     # Perform collection at destination
                     self.transition_state(NpcState.Idle)

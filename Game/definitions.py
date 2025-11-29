@@ -29,6 +29,32 @@ class Direction(Enum):
     Left = (0, -1)
     Right = (0, 1)
 
+class SignalType(Enum):
+    # Core Loop
+    TICK = "Tick"
+    
+    # Input
+    KEY_PRESS = "KeyPress"
+    
+    # Physics/Movement
+    MOVE_ATTEMPT = "MoveAttempt" # Before move
+    MOVE_SUCCESS = "MoveSuccess" # After move
+    COLLISION = "Collision"
+    
+    # Interaction (New)
+    INTERACTION_QUERY = "InteractionQuery" # "I am here, is there anything?"
+    INTERACT_WITH_SOURCE = "InteractWithSource" # "Yes, here is a source"
+    INTERACT_WITH_MACHINE = "InteractWithMachine" # "Yes, here is a machine"
+    
+    # Logic
+    PIECE_REMOVED = "PieceRemoved" # Triggered when a piece is removed from board
+
+    # Game Logic
+    GAME_START = "GameStart"
+
+    GAME_OVER = "GameOver"
+    MESSAGE = "Message" # Replacement for Broadcast
+
 # source
 source_rarity_weights = {
     Rarity.COMMON: 70,     
@@ -70,4 +96,3 @@ superscript_mapping = {
     8: chr(0x2078),  # ⁸
     9: chr(0x2079)   # ⁹
 }
-

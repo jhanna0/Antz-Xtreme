@@ -40,3 +40,17 @@ class Piece():
     def get_id(self):
         return self.id
 
+    def update(self) -> None:
+        """
+        Called every turn/tick to update the piece's state.
+        Override this in subclasses.
+        """
+        pass
+
+    def is_expired(self) -> bool:
+        """
+        Checks if the piece should be removed from the game.
+        Override this in subclasses (e.g. Source).
+        """
+        return False
+

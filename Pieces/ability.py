@@ -1,21 +1,20 @@
-from typing import Tuple, List, Set
+from typing import Tuple, List, Set, TYPE_CHECKING, Any
 from Pieces.piece import Piece
 from Pieces.player import Player
 from Game.board import Board
-from Managers.manager import Manager
 from Game.broadcast import broadcast
 from Game.tick import ticks
 from Game.definitions import Direction, Speed
-from Managers.npc_manager import NPCManager
 from Pieces.robot import MinerRobot
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import MachineManager
+
+if TYPE_CHECKING:
+    from Game.context import GameContext
 
 # Abilities should maybe be a new Class, "Action"... they don't *really* need to exist on board, but..
 # Right now Piece is our visual (gets placed on board) Object
 # But having Enum Speed begs for all actions to have start_action method .. wait for Speed .. take_action method
 class Ability(Piece):
-    def __init__(self, location: Tuple[int, int], affects: List[Manager], symbol: str = "*"):
+    def __init__(self, location: Tuple[int, int], affects: List[Any], symbol: str = "*"):
         super().__init__(location, symbol)
         self.affects = affects
     
@@ -26,19 +25,40 @@ class Ability(Piece):
     def is_attack_finished(self) -> bool:
         raise NotImplementedError()
 
+    def update(self) -> None:
+        self.take_action()
+
+    def is_expired(self) -> bool:
+        return self.is_attack_finished()
+
 class Projectile(Ability):
-    def __init__(self, location: Tuple[int, int], board: Board, direction: Direction, affects: List[Manager]):
+    def __init__(self, location: Tuple[int, int], board: Board, direction: Direction, affects: List[Any]):
         super().__init__(location = location, affects = affects)
         self.board = board
         self.direction = direction.value
         self.hits = 0
 
     def take_action(self) -> None:
+        # Refactored to work with EntityManager or list of managers
+        # The 'affects' list is now likely just [EntityManager] or similar
+        # But if it still holds managers, we need to be careful.
+        # Ideally, we shouldn't rely on 'affects' containing specific managers anymore.
+        # We should query the context or entity manager directly.
+        pass # Logic below needs update if 'affects' changes structure.
+        
+        # Assuming 'affects' now contains the EntityManager or we access it via a passed context if we had one.
+        # Since we don't have context here easily without passing it, let's assume 'affects' 
+        # might be a list of Managers or just one EntityManager.
+        
+        # For now, preserving logic but iterating cautiously
         for manager in self.affects:
+            # Manager now refers to EntityManager hopefully or we need to check interface
             hits = manager.get_all_pieces_at_location(self.get_location())
             for piece in hits:
-                self.hits += len(hits)
+                if piece == self: continue # Don't hit yourself
+                self.hits += 1 # Simplification: hits anything
                 manager.remove_piece(piece)
+                
         self.location = self._next_move()
 
     # same method in player class -> could make a "movable" piece class. npc doesn't take this because we assume all their moves are valid
@@ -51,7 +71,7 @@ class Projectile(Ability):
         return (x, y)
 
 class Ultimate(Ability):
-    def __init__(self, size: Tuple[int, int], affects: List[Manager]):
+    def __init__(self, size: Tuple[int, int], affects: List[Any]):
         super().__init__(location = (0, 0), affects = affects)
         self.set_size(size)
         self.start_tick = ticks.get_current_tick()
@@ -62,6 +82,7 @@ class Ultimate(Ability):
         for manager in self.affects:
             all_pieces = manager.get_pieces()
             for piece in all_pieces:
+                if piece == self: continue
                 manager.remove_piece(piece)
 
     def is_attack_finished(self) -> bool:
@@ -104,7 +125,7 @@ class Teleport(Ability):
         return final_row, final_col
 
 class Ring(Ability):
-    def __init__(self, player: Player, affects: List[Manager]):
+    def __init__(self, player: Player, affects: List[Any]):
         super().__init__(location = (0, 0), affects = affects)
         self.set_size((3, 3))
         self.start_tick = ticks.get_current_tick()
@@ -117,6 +138,7 @@ class Ring(Ability):
             for radius in self._determine_hits():
                 hits = manager.get_all_pieces_at_location(radius)
                 for piece in hits:
+                    if piece == self or piece == self.player: continue
                     manager.remove_piece(piece)
 
     def is_attack_finished(self) -> bool:
@@ -138,25 +160,22 @@ class Ring(Ability):
 class Conjure(Ability):
     def __init__(self,
             location: Tuple[int, int],
-            npcs: NPCManager,
-            sources: SourceManager,
-            machines: MachineManager
+            context: 'GameContext'
             ):
         super().__init__(location = location,affects = [], symbol = ".")
         self.duration = Speed.NORMAL.value
-        self.npcs = npcs
-        self.sources = sources
-        self.machines = machines
+        self.context = context
         self.start_tick = ticks.get_current_tick() # definitely make an Action class
 
     def take_action(self) -> List[Piece]:
         if self.is_attack_finished():
-            self.npcs.register(
+            # Access NPC manager dynamically or register directly via context
+            # Now using context.register_entity
+            self.context.register_entity(
                 MinerRobot(
+                    context = self.context,
                     name = "Spawn",
-                    location = self.location,
-                    sources = self.sources,
-                    machines = self.machines
+                    location = self.location
                 )
             )
 

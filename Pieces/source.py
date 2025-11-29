@@ -39,5 +39,8 @@ class Source(Piece):
     def get_footprint(self) -> str:
         return f"{self.symbol}{superscript_mapping.get(self.quantity, self.quantity)}"
     
-    def expired(self):
+    def update(self) -> None:
+        self.grow()
+
+    def is_expired(self) -> bool:
         return self.lifetime <= 0

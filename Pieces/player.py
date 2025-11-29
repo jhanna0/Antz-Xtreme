@@ -1,18 +1,12 @@
 from Pieces.character import Character
 from Game.definitions import Direction
 from typing import Tuple
-from Game.broadcast import broadcast
-from Game.bank import bank
 from Game.board import Board
-from Managers.source_manager import SourceManager
-from Managers.machine_manager import MachineManager
 
 class Player(Character):
-    def __init__(self, sources: SourceManager, machines: MachineManager, name: str = "You", location: Tuple[int, int] = (0, 0), symbol: str = "~"):
-        super().__init__(name, location, symbol, sources, machines)
+    def __init__(self, name: str = "You", location: Tuple[int, int] = (0, 0), symbol: str = "~"):
+        super().__init__(name, location, symbol)
         self.last_direction = Direction.Right
-        self.sources = sources
-        self.machines = machines
 
     def next_move(self, direction: Direction) -> Tuple[int, int]:
         """

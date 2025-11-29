@@ -1,6 +1,6 @@
 from Game.board import Board
 from typing import List
-from Game.broadcast import broadcast
+from Game.signals import signals, SignalType
 from Game.bank import bank
 from Inventory.inventory import Inventory
 
@@ -15,8 +15,11 @@ class Display:
         self.objective = ""  # Objective to display
         self.chapter_name = ""  # Chapter name to display
         self.starting_row = 1  # Tracks the row where the content starts
-        broadcast.subscribe(self)
+        signals.subscribe(SignalType.MESSAGE, self._handle_message_signal)
         self.clear_screen()
+
+    def _handle_message_signal(self, signal):
+        self.add_message(str(signal.data))
 
     def set_story_name(self, name: str):
         """Sets the story name to be displayed."""
