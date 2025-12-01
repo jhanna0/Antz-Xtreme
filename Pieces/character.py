@@ -14,8 +14,9 @@ class Character(Piece):
         self.name = name
         
         # Subscribe to interaction signals
-        signals.subscribe(SignalType.INTERACT_WITH_SOURCE, self._handle_source_interaction)
-        signals.subscribe(SignalType.INTERACT_WITH_MACHINE, self._handle_machine_interaction)
+        # Specific interactions should be handled by subclasses in the ROM
+        # signals.subscribe(SignalType.INTERACT_WITH_SOURCE, self._handle_source_interaction)
+        # signals.subscribe(SignalType.INTERACT_WITH_MACHINE, self._handle_machine_interaction)
 
         # Probably a better way to do this.. just for abilities seem too specific. When action class is introduced can make a dict there
         self.ability_cooldown = Speed.SLOW
@@ -39,35 +40,7 @@ class Character(Piece):
     def inventory_full(self) -> bool:
         return self.inventory.is_inventory_full()
 
-    def _handle_source_interaction(self, signal):
-        """
-        Callback for when a source is found at the character's location.
-        """
-        if signal.data.get("target") != self:
-            return
-            
-        if self.inventory_full():
-            return
-        
-        source = signal.data.get("source")
-        if source:
-            item = source.take()
-            if item:
-                self.add_to_inventory(item)
-
-    def _handle_machine_interaction(self, signal):
-        """
-        Callback for when a machine is found at the character's location.
-        """
-        if signal.data.get("target") != self:
-            return
-
-        machine = signal.data.get("machine")
-        if machine and self.any_in_inventory():
-            item = self.get_inventory().pop()
-            bank.add_money(machine.convert(item))
-            broadcast.announce(f"{self.name} sold {item.get_symbol()} for ${item.get_worth()}")
-
+    # Generic update only handles emitting presence/query
     def update(self) -> None:
         """
         Handles the character's interactions with sources and machines during their turn.

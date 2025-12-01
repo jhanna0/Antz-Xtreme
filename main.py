@@ -98,9 +98,8 @@ class Game:
         # Update Entity Manager which handles all entities
         self.context.entity_manager.update()
         
-        # Player update (if separate, but could be in entity manager too)
-        if hasattr(self.player, 'turn_sequence'):
-             self.player.turn_sequence()
+        # Player update (handles interactions via signals)
+        self.player.update()
 
         self._handle_input()
         self._update_board()

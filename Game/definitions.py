@@ -72,7 +72,7 @@ source_worth_map = {
 
 source_creation_rate = {
     Rarity.COMMON: (30, 40),      
-    Rarity.UNCOMMON: (30, 20),   
+    Rarity.UNCOMMON: (20, 30),   
     Rarity.RARE: (10, 20),     
     Rarity.LEGENDARY: (1, 10)
 }

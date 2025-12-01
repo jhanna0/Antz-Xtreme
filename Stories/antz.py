@@ -1,19 +1,72 @@
 from typing import List, Callable
 from Game.broadcast import broadcast
 from Game.context import GameContext
-from Pieces.robot import MinerRobot
+from Stories.antz_pieces import (
+    MinerRobot, MoneyMachine, Source, 
+    Teleport, Conjure, Projectile, Ultimate,
+    create_random_source, AntzPlayer
+)
 from Pieces.shop import Shop
-from Pieces.machine import MoneyMachine
-from Pieces.player import Player
-from Pieces.source import Source
-from Factory.factory import AbilityFactory
 from Game.story import Story, Chapter
-from Game.definitions import Direction, SignalType
+from Game.definitions import Direction, SignalType, Rarity, random_event_rate
 from Game.signals import signals
+from Game.tick import ticks
+from random import randint
 
 # Managers & Core
 from Game.generate import Generator
-from Game.events import Events
+# from Game.events import Events # Removed
+
+# --- FACTORY ---
+class Factory:
+    """Cleaner solution to high dependency methods"""
+    def __init__(self):
+        pass
+
+class AbilityFactory(Factory):
+    def __init__(self, context: GameContext):
+        self.context = context
+
+    def player_teleport(self) -> Callable:
+        def teleport_action():
+            ability = Teleport(
+                target = self.context.player,
+                context = self.context
+            )
+            if self.context.player.can_use_ability():
+                self.context.register_entity(ability)
+        return teleport_action
+
+    def directional_projectile(self, direction: Direction) -> Callable:
+        def projectile_action():
+            ability = Projectile(
+                location = self.context.player.get_location(),
+                context = self.context,
+                direction = direction
+            )
+            if self.context.player.can_use_ability():
+                self.context.register_entity(ability)
+        return projectile_action
+
+    def ultimate_ability(self) -> Callable:
+        def ultimate_action():
+            ability = Ultimate(
+                size = self.context.board.get_size(),
+                context = self.context
+            )
+            if self.context.player.can_use_ability():
+                self.context.register_entity(ability)
+        return ultimate_action
+
+    def conjure_ability(self) -> Callable:
+        def conjure_action():
+            ability = Conjure(
+                location = self.context.player.get_location(),
+                context = self.context
+            )
+            if self.context.player.can_use_ability():
+                self.context.register_entity(ability)
+        return conjure_action
 
 class Tutorial(Chapter):
     def __init__(self, context: GameContext):
@@ -145,6 +198,10 @@ class AntzStory(Story):
         self.chapters: List[Chapter] = []
         self.current_chapter_index = 0
         self.factory = AbilityFactory(self.context)
+        
+        # Event tracking
+        self.events_count = 0
+        self.last_event_time = 0
 
         self.add_chapter(
             Tutorial(
@@ -199,13 +256,13 @@ class AntzStory(Story):
         self.context.entity_manager.potential_sources = (97, 123)
         
         generator = Generator(board, self.context.entity_manager)
-        events = Events(generator)
+        # events = Events(generator) # Removed
         
         self.context.generator = generator
-        self.context.events = events
+        # self.context.events = events # Removed
         
-        # Setup Player
-        player = Player(
+        # Setup Player (using AntzPlayer which has signal subscriptions)
+        player = AntzPlayer(
             symbol = "~",
             location = generator.find_location_for_piece()
         )
@@ -234,4 +291,19 @@ class AntzStory(Story):
         )
     
     def every_turn(self):
-        self.context.events.random_event()
+        self.handle_random_events()
+
+    def handle_random_events(self):
+        rarity = Rarity.COMMON
+        start, end = random_event_rate[rarity]
+        current_tick = ticks.get_current_tick()
+
+        if current_tick > 20 and self.events_count == 0:
+            create_random_source(self.context.generator, self.context.entity_manager)
+            self.events_count += 1
+            self.last_event_time = current_tick
+
+        elif (current_tick - self.last_event_time) >= randint(start, end):
+            create_random_source(self.context.generator, self.context.entity_manager)
+            self.last_event_time = current_tick
+            self.events_count += 1
