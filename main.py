@@ -7,9 +7,12 @@ from Game.board import Board
 from Game.events import Events
 from Pieces.player import Player
 from Game.story import Story
-from Stories.antz import AntzStory
 from Game.context import GameContext
 from Game.loader import load_story_from_file
+
+# ROM System
+from Game.menu import Menu
+from Game.rom_loader import ROMLoader
 
 # Managers
 # from Managers.manager import Manager
@@ -121,15 +124,72 @@ class Game:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a game story.")
     parser.add_argument("--story", type=str, help="Path to a python file containing a Story subclass")
+    parser.add_argument("--rom", type=str, help="Name of ROM to load directly (skips menu)")
+    parser.add_argument("--list-roms", action="store_true", help="List available ROMs and exit")
     args = parser.parse_args()
+    
+    # Handle --list-roms flag
+    if args.list_roms:
+        from Game.rom_loader import ROMLoader
+        loader = ROMLoader()
+        roms = loader.scan_roms()
+        if roms:
+            print("\nAvailable ROMs:")
+            for rom in roms:
+                print(f"  • {rom.name} v{rom.version}")
+                print(f"    {rom.description}")
+                print(f"    Difficulty: {rom.difficulty}")
+                print()
+        else:
+            print("No ROMs found.")
+        sys.exit(0)
 
-    story_class = AntzStory
+    story_class = None
+    
+    # If a custom story file is provided via --story, load it
     if args.story:
         loaded_class = load_story_from_file(args.story)
         if loaded_class:
             story_class = loaded_class
         else:
-            print("Failed to load custom story. Using default.")
+            print("Failed to load custom story.")
+            sys.exit(1)
+    
+    # If no story specified, use the menu system
+    if not story_class:
+        menu = Menu()
+        rom_loader = ROMLoader()
+        
+        # If ROM name specified via --rom, load it directly
+        if args.rom:
+            roms = rom_loader.scan_roms()
+            selected_rom = None
+            for rom in roms:
+                if rom.name.lower() == args.rom.lower():
+                    selected_rom = rom
+                    break
+                    
+            if not selected_rom:
+                print(f"ROM not found: {args.rom}")
+                print("Available ROMs:")
+                for rom in roms:
+                    print(f"  - {rom.name}")
+                sys.exit(1)
+        else:
+            # Show menu
+            selected_rom = menu.show_menu()
+            
+        if not selected_rom:
+            print("No ROM selected. Exiting.")
+            sys.exit(0)
+            
+        # Load the selected ROM
+        story_class = rom_loader.load_story_class(selected_rom)
+        
+        if not story_class:
+            menu.show_error("Failed to load ROM")
+            sys.exit(1)
 
+    # Start the game with the selected story
     game = Game(story_class)
     game.run()

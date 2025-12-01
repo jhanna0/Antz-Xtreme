@@ -1,0 +1,10 @@
+{
+  "name": "Antz Extreme",
+  "version": "1.0.0",
+  "author": "Original Author",
+  "description": "A tutorial-driven adventure where you learn to control an ant colony, gather resources, and master powerful abilities. Progress through chapters from basic movement to ultimate domination!",
+  "main": "story.py",
+  "difficulty": "Easy",
+  "tags": ["tutorial", "resource-gathering", "abilities"]
+}
+
